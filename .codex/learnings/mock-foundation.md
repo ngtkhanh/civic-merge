@@ -10,6 +10,8 @@ Confirm cùng lựa chọn trả snapshot đã lưu, không lấy reportCount m�
 
 ## Bugs & Solutions
 
+Expo SDK 58 dùng serializer không nhận multipart part `{uri,name,type}` cũ. API client cần append `new File(uri)` từ expo-file-system; ép kiểu `as Blob` không chuyển đối tượng thành Blob. Tái hiện bằng convertFormDataAsync trong Expo; File-like bytes gửi được multipart và GPS đến Express. Khi test thiết bị còn thấy lỗi cũ, đối chiếu manifest.launchAsset.url đầy đủ (có transform.routerRoot=src/app) rồi cold-start client để nạp bundle mới.
+
 Khi script có top-level await bị esbuild chuyển CJS, kiểm tra root package `type: module`. Khi tsx trên Windows sandbox lỗi uv_os_get_passwd/ENOMEM, kiểm tra quyền môi trường trước khi sửa code. Trong task này chạy được ngoài sandbox sau phê duyệt.
 
 ## How-To

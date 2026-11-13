@@ -3,6 +3,8 @@ import {
   IncidentDetailSchema, IncidentListResponseSchema, MockStateSchema,
   type ConfirmRequest, type Location, type MockScenario,
 } from '@civicmerge/contracts';
+import { File } from 'expo-file-system';
+import { fetch } from 'expo/fetch';
 
 export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
 export const MOCK_MODE = process.env.EXPO_PUBLIC_MOCK_MODE === 'true';
@@ -34,8 +36,8 @@ export const api = {
   confirm: (body: ConfirmRequest) => request('/api/reports/confirm', ConfirmResponseSchema, json(body)),
   async analyze(image: UploadImage, location: Location | null) {
     const form = new FormData();
-    // React Native FormData accepts a file URI object, unlike browser FormData.
-    form.append('image', image as unknown as Blob);
+    // Expo's fetch requires Blob/File bytes, not React Native's legacy URI object.
+    form.append('image', new File(image.uri));
     if (location) { form.append('latitude', String(location.latitude)); form.append('longitude', String(location.longitude)); }
     return request('/api/reports/analyze', AnalyzeResponseSchema, { method: 'POST', body: form });
   },

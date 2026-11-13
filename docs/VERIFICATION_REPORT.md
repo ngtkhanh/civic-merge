@@ -26,3 +26,10 @@ Branch: `chore/mock-foundation`. Node 24.21.0, npm 11.19.0, Expo SDK 58.
 - Bộ nhớ không thay thế persistence/transaction của Supabase; mock AI/matching không chứng minh độ chính xác ảnh thật hoặc GPS.
 
 Source sạch được kiểm tra bằng bản sao tạm của thay đổi hiện tại; chưa gọi đây là clone từ remote vì code chưa được push. Thư mục tạm kiểm chứng đã được dọn; dependency/cache/runtime không đưa vào commit.
+
+## Theo dõi khi chạy Android Emulator
+
+- Người dùng đã mở được Mobile trên emulator API 37. Backend `/health` và `/api/incidents` trả 200; quyền mạng nội bộ của Expo Go đã được cấp khi kiểm tra kết nối.
+- Phát hiện upload dùng `{uri,name,type}` cũ gây `Unsupported FormDataPart implementation` trong Expo SDK 58. Đã đổi sang `File` từ `expo-file-system` và dùng `expo/fetch`, không thay contract backend.
+- Sau sửa: typecheck, lint và export iOS PASS. Kiểm tra serializer thực tế của Expo với File-like bytes và GPS gửi đến Express riêng trả 201; đối tượng URI cũ tái hiện đúng lỗi. Đây chưa phải kiểm chứng lớp File native trên thiết bị.
+- Bundle Android do Metro phục vụ đã chứa bản sửa; đã cold-start lại Expo Go để nạp mới. Chờ người dùng chọn lại ảnh và xác nhận màn kết quả; chưa đánh dấu upload/native create/merge PASS.

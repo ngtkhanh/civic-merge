@@ -13,6 +13,8 @@ Phase: Code và kiểm chứng tự động hoàn tất; commit theo mốc, ch�
 - [x] Learning gate — created AI/human learning về boundary và kiểm chứng
 - [x] Commit riêng từng mốc đã hoàn thành theo yêu cầu mới của người dùng — bao gồm commit tài liệu/state này
 - [ ] Nghiệm thu iPhone và hai điện thoại cùng backend
+- [x] Sửa upload Expo SDK 58: dùng File thay URI object; typecheck/lint/export và serializer → HTTP kiểm tra qua
+- [ ] Người dùng xác nhận lại upload Android sau cold-start Expo Go với bundle mới
 - [ ] Tích hợp main và tạo bốn branch cá nhân — chưa được yêu cầu thực hiện Git actions này
 
 ## Decisions
@@ -37,4 +39,4 @@ Evidence: docs/VERIFICATION_REPORT.md
 Nghiệm thu iPhone/hai điện thoại cần người dùng cài client SDK 58 và thao tác thiết bị. Theo tài liệu Expo hiện tại, luồng Expo Go iOS yêu cầu Apple Developer/TestFlight; chưa xác định tài khoản của nhóm.
 
 ## Next step
-Người dùng chuẩn bị client iPhone theo docs/IPHONE_SETUP.md, cấu hình hai file .env rồi chạy README và nghiệm thu thiết bị. Giữ task chưa DONE trước nghiệm thu iPhone/hai điện thoại; chưa push/merge main.
+Người dùng chọn lại ảnh trên Android và bấm phân tích sau khi đã cold-start Expo Go với bản sửa File upload. Sau đó tiếp tục nghiệm thu create/merge; iPhone/hai điện thoại vẫn chưa nghiệm thu. Chưa push/merge main.
