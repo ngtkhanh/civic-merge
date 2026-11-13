@@ -17,16 +17,16 @@ Tham chiếu:
 - [Tổng quan dự án](CivicMerge_Project_Overview.md).
 - [Phân công và pipeline tích hợp](CivicMerge_4_Member_Integration_Pipeline.md).
 
-## 2. Những quyết định cần bạn lựa chọn
+## 2. Những quyết định đã chốt
 
-Chỉ cần chốt hai mục sau trước khi cấu hình và kiểm chứng trên thiết bị thật. Các bước contract, backend mock và fixtures có thể làm trước khi có câu trả lời.
+Đã chốt **Q1: B — iOS/iPhone thật trước** và **Q2: A — mỗi người chạy backend riêng qua LAN**. Khi tích hợp/demo, các điện thoại cùng gọi một backend và cùng nguồn dữ liệu. Các phương án dưới đây được giữ để tham khảo.
 
 ### Q1. Thiết bị dùng để nghiệm thu bộ khung
 
 | Lựa chọn | Phạm vi | Ảnh hưởng |
 |---|---|---|
-| **A — Android thật trước (đề xuất)** | Nghiệm thu Android trước; vẫn tổ chức code hướng đến Android và iOS | Một thiết bị ưu tiên giúp tập trung kiểm tra camera, GPS và kết nối API |
-| B — iPhone thật trước | Nghiệm thu trên iPhone trước | Cần có iPhone để kiểm tra quyền và luồng thực tế |
+| A — Android thật trước | Nghiệm thu Android trước; vẫn tổ chức code hướng đến Android và iOS | Một thiết bị ưu tiên giúp tập trung kiểm tra camera, GPS và kết nối API |
+| **B — iOS/iPhone thật trước (đã chọn)** | Nghiệm thu trên iPhone trước; vẫn tổ chức code hướng đến Android và iOS | Cần có iPhone để kiểm tra quyền và luồng thực tế |
 | C — Cả Android và iPhone ngay | Nghiệm thu cả hai nền tảng trong giai đoạn nền | Cần đủ thiết bị và thời gian kiểm tra trên cả hai |
 
 Chạy trên điện thoại qua Expo Go nếu các dependency đã chọn tương thích; kiểm tra điều này khi khởi tạo. Nếu phát sinh yêu cầu development build, ghi rõ nguyên nhân và điều chỉnh hướng dẫn chạy.
@@ -35,15 +35,13 @@ Chạy trên điện thoại qua Expo Go nếu các dependency đã chọn tươ
 
 | Lựa chọn | Cách chạy | Ảnh hưởng |
 |---|---|---|
-| **A — Mỗi người chạy local; điện thoại cùng LAN (đề xuất)** | Mỗi máy có backend và dữ liệu mock riêng; điện thoại gọi địa chỉ LAN của máy đó | Đơn giản để chia branch, không cần dịch vụ hosting |
+| **A — Mỗi người chạy local; điện thoại cùng LAN (đã chọn)** | Mỗi máy có backend và dữ liệu mock riêng; điện thoại gọi địa chỉ LAN của máy đó | Đơn giản để chia branch, không cần dịch vụ hosting |
 | B — Làm việc từ xa; mỗi người vẫn chạy backend riêng | Mỗi người chạy trên máy mình; điện thoại dùng LAN hoặc một tunnel khi cần | Cần ghi rõ cách kết nối; tunnel chỉ bổ sung khi mạng thực tế yêu cầu |
 | C — Một backend demo dùng chung qua Internet | Mọi người gọi một backend chung; vẫn giữ khả năng chạy local | Cần chọn nơi chạy, cấu hình triển khai và ngăn dữ liệu demo của mọi người ảnh hưởng nhau |
 
 Nếu chọn C, trước hết hoàn thành bản local; sau đó chuẩn bị cấu hình triển khai và làm rõ tài khoản/dịch vụ sẵn có. Chưa tự chọn dịch vụ có phí hoặc công khai backend ra Internet.
 
-**Mẫu trả lời:** `Q1: A; Q2: A`.
-
-Các phương án đề xuất ở đây chưa được xem là lựa chọn đã xác nhận của bạn.
+**Lựa chọn đã xác nhận:** `Q1: B; Q2: A`. Xem [phương án phát triển thống nhất cho đội](CivicMerge_Team_Development_Agreement.md).
 
 ## 3. Các quyết định kỹ thuật tôi sẽ tự triển khai
 
@@ -181,7 +179,7 @@ Mock matching chỉ kiểm chứng cách các module phối hợp. Độ chính 
 - [ ] Chi tiết hiển thị ảnh, số reports, tổ xử lý, trạng thái và lịch sử tối thiểu.
 - [ ] Có trạng thái đang tải, lỗi, danh sách rỗng và xử lý từ chối quyền.
 - [ ] Tập trung HTTP client trong `services/api.ts`; base URL đọc từ cấu hình.
-- [ ] Kiểm tra upload ảnh và tải ảnh trên điện thoại thật theo Q1/Q2.
+- [ ] Kiểm tra upload ảnh và tải ảnh trên iPhone thật theo Q1/Q2 đã chốt.
 
 **Hoàn thành khi:** người dùng thực hiện được toàn bộ luồng qua UI; dữ liệu hiển thị lấy từ backend.
 
@@ -217,7 +215,7 @@ Chỉ dùng bộ khung làm nền chung khi:
 
 - [ ] Contracts và interface module đã có trong source code.
 - [ ] Bộ khung chạy mà không cần OpenAI/Supabase key.
-- [ ] Mobile gọi được Express trên thiết bị đã chọn.
+- [ ] Mobile gọi được Express trên iPhone thật.
 - [ ] Demo đạt **1 incident, 2 reports, 2 ảnh**.
 - [ ] Reset và chạy lại demo được.
 - [ ] Typecheck và kiểm thử tích hợp cần thiết đều qua.
