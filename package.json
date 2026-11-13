@@ -1,0 +1,26 @@
+{
+  "name": "civic-merge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "engines": { "node": ">=24.13.0 <25" },
+  "packageManager": "npm@11.19.0",
+  "scripts": {
+    "dev:api": "npm run dev --workspace=@civicmerge/api",
+    "dev:mobile": "npm run start --workspace=@civicmerge/mobile",
+    "typecheck": "tsc -p tsconfig.tools.json && npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspace=@civicmerge/mobile",
+    "test": "npm run test:integration",
+    "test:integration": "tsx --test tests/integration/*.test.ts",
+    "test:modules": "tsx scripts/check-modules.ts",
+    "mock:reset": "tsx scripts/mock-reset.ts",
+    "mobile:export": "npm run export:ios --workspace=@civicmerge/mobile"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "dotenv": "^17.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "~6.0.3"
+  }
+}
