@@ -30,15 +30,18 @@ Nếu muốn dùng development build riêng của CivicMerge thay Expo Go, cần
 
 ## 3. Kiểm tra lần đầu
 
-- [ ] Trang chủ tải danh sách, không báo lỗi mạng.
+Xác nhận ngày 14/11/2026: người dùng đã nghiệm thu luồng mock trên iPhone thật + giả lập, dùng chung backend trên laptop. Các tình huống quyền, camera/GPS và accessibility dưới đây vẫn cần kiểm tra riêng.
+
+- [x] Trang chủ tải danh sách, không báo lỗi mạng.
 - [ ] Chụp ảnh được; từ chối camera vẫn có thể dùng chọn ảnh.
 - [ ] Chọn ảnh thư viện, kể cả định dạng iPhone thường dùng, gửi lên được sau chuẩn hóa JPEG.
 - [ ] Cho phép GPS và lấy vị trí được; từ chối GPS không crash.
 - [ ] Vị trí mẫu được ghi rõ là demo.
-- [ ] Tạo hồ sơ đầu, gửi ảnh khác rồi hợp nhất, xem hai ảnh.
+- [x] Tạo hồ sơ đầu, gửi ảnh khác rồi hợp nhất, xem hai ảnh.
 - [ ] Đóng/mở Mobile vẫn xem hồ sơ khi backend còn chạy.
 - [ ] Thử chữ hệ thống lớn, VoiceOver, xoay ngang và vùng tai thỏ/home indicator.
 - [ ] Hai điện thoại cùng backend chạy lại kịch bản một incident, hai reports.
+- [x] iPhone thật + giả lập cùng backend: một incident, hai reports, hai ảnh (người dùng xác nhận ngày 14/11/2026).
 
 ## 4. Khi không kết nối được
 

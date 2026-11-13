@@ -10,9 +10,9 @@ Luồng bắt buộc:
 
 Kịch bản nghiệm thu chính: ảnh thứ nhất tạo incident A; ảnh thứ hai được đề xuất ghép vào A; sau xác nhận, hệ thống có **1 incident, 2 reports và 2 ảnh minh chứng**.
 
-Tiến độ 13/11/2026: đã triển khai code nền trên `chore/mock-foundation`, typecheck/lint/test và export bundle iOS đã qua. Chưa nghiệm thu iPhone/hai điện thoại, chưa tích hợp main hoặc push. Người dùng đã yêu cầu commit riêng các mốc hoàn thành.
+Tiến độ cập nhật 14/11/2026: đã triển khai code nền trên `chore/mock-foundation`, typecheck/lint/test và export bundle iOS đã qua. Người dùng xác nhận đã nghiệm thu iPhone thật + giả lập cùng backend trên laptop: 1 incident, 2 reports, 2 ảnh. Chưa nghiệm thu hai điện thoại thật, chưa tích hợp main hoặc push. Người dùng đã yêu cầu commit riêng các mốc hoàn thành.
 
-Các checkbox ở phần triển khai ghi nhận code đã có; nghiệm thu trên thiết bị được theo dõi riêng và chưa đánh dấu hoàn tất. Xem [báo cáo kiểm chứng](VERIFICATION_REPORT.md).
+Các checkbox ở phần triển khai ghi nhận code đã có; các mục nghiệm thu thiết bị được cập nhật theo xác nhận của người dùng, với phạm vi cụ thể trong [báo cáo kiểm chứng](VERIFICATION_REPORT.md).
 
 Tham chiếu:
 
@@ -181,7 +181,7 @@ Mock matching chỉ kiểm chứng cách các module phối hợp. Độ chính 
 - [x] Chi tiết hiển thị ảnh, số reports, tổ xử lý, trạng thái và lịch sử tối thiểu.
 - [x] Có trạng thái đang tải, lỗi, danh sách rỗng và xử lý từ chối quyền.
 - [x] Tập trung HTTP client trong `services/api.ts`; base URL đọc từ cấu hình.
-- [ ] Kiểm tra upload ảnh và tải ảnh trên iPhone thật theo Q1/Q2 đã chốt.
+- [x] Kiểm tra upload ảnh và tải ảnh trên iPhone thật theo Q1/Q2 đã chốt (người dùng xác nhận ngày 14/11/2026).
 
 **Hoàn thành khi:** người dùng thực hiện được toàn bộ luồng qua UI; dữ liệu hiển thị lấy từ backend.
 
@@ -220,8 +220,8 @@ Chỉ dùng bộ khung làm nền chung khi:
 
 - [x] Contracts và interface module đã có trong source code.
 - [x] Bộ khung chạy mà không cần OpenAI/Supabase key.
-- [ ] Mobile gọi được Express trên iPhone thật.
-- [ ] Demo đạt **1 incident, 2 reports, 2 ảnh**.
+- [x] Mobile gọi được Express trên iPhone thật (người dùng xác nhận ngày 14/11/2026).
+- [x] Demo đạt **1 incident, 2 reports, 2 ảnh** trên iPhone thật + giả lập cùng backend (người dùng xác nhận ngày 14/11/2026); chưa thay thế nghiệm thu hai điện thoại thật.
 - [ ] Reset và chạy lại demo được.
 - [x] Typecheck và kiểm thử tích hợp cần thiết đều qua.
 - [x] README có hướng dẫn chạy, mock scenarios và ownership.

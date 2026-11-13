@@ -11,7 +11,8 @@ Branch: `chore/mock-foundation`. Node 24.21.0, npm 11.19.0, Expo SDK 58.
 | `npm run mobile:export` | PASS | Expo Router + shared packages đóng gói iOS bằng Metro; không phải IPA |
 | Khởi động `server.ts`, gọi `/health`, chạy CLI reset | PASS | Server tạm localhost, không mở backend Internet |
 | Cài lại source sạch | PASS | Bản sao không node_modules/.env/cache; npm ci + typecheck + lint + modules + integration |
-| iPhone thật | CHƯA XÁC MINH | Người dùng chưa cài client SDK 58 |
+| iPhone thật | PASS theo xác nhận người dùng ngày 14/11/2026 | Đã chạy ứng dụng và nghiệm thu luồng mock cùng giả lập |
+| iPhone thật + giả lập cùng backend | PASS theo xác nhận người dùng ngày 14/11/2026 | Tạo mới/hợp nhất, 1 incident, 2 reports, 2 ảnh; dùng backend trên laptop người dùng |
 | Hai điện thoại cùng backend | CHƯA XÁC MINH | Chờ nghiệm thu thiết bị |
 | Tích hợp vào main / push | CHƯA THỰC HIỆN | Chưa được yêu cầu |
 
@@ -22,7 +23,7 @@ Branch: `chore/mock-foundation`. Node 24.21.0, npm 11.19.0, Expo SDK 58.
 - Windows sandbox chặn `tsx` tại `os.userInfo()`; các test đã chạy trong môi trường được cấp quyền. Đây không phải lỗi nghiệp vụ.
 - `npm audit`: 8 moderate trong chuỗi minimatch của Expo/fingerprint và TypeScript ESLint. `audit fix` không sửa được; không dùng `--force` để downgrade major Expo. Chưa xử lý dứt điểm cảnh báo dependency.
 - Upload chỉ kiểm tra kích thước, MIME và chữ ký; chưa giải mã/kiểm tra toàn ảnh. Storage local chưa có retention tự động.
-- Chưa xác minh giao diện 375pt, xoay ngang, chữ lớn, VoiceOver, camera/GPS hoặc quyền mạng iOS. Hướng dẫn thao tác: [IPHONE_SETUP.md](IPHONE_SETUP.md).
+- Người dùng đã xác nhận luồng mock trên iPhone thật + giả lập ngày 14/11/2026. Chưa xác minh riêng giao diện 375pt, xoay ngang, chữ lớn, VoiceOver, camera/GPS hoặc các tình huống từ chối quyền iOS. Hướng dẫn thao tác: [IPHONE_SETUP.md](IPHONE_SETUP.md).
 - Bộ nhớ không thay thế persistence/transaction của Supabase; mock AI/matching không chứng minh độ chính xác ảnh thật hoặc GPS.
 
 Source sạch được kiểm tra bằng bản sao tạm của thay đổi hiện tại; chưa gọi đây là clone từ remote vì code chưa được push. Thư mục tạm kiểm chứng đã được dọn; dependency/cache/runtime không đưa vào commit.
@@ -32,4 +33,11 @@ Source sạch được kiểm tra bằng bản sao tạm của thay đổi hiệ
 - Người dùng đã mở được Mobile trên emulator API 37. Backend `/health` và `/api/incidents` trả 200; quyền mạng nội bộ của Expo Go đã được cấp khi kiểm tra kết nối.
 - Phát hiện upload dùng `{uri,name,type}` cũ gây `Unsupported FormDataPart implementation` trong Expo SDK 58. Đã đổi sang `File` từ `expo-file-system` và dùng `expo/fetch`, không thay contract backend.
 - Sau sửa: typecheck, lint và export iOS PASS. Kiểm tra serializer thực tế của Expo với File-like bytes và GPS gửi đến Express riêng trả 201; đối tượng URI cũ tái hiện đúng lỗi. Đây chưa phải kiểm chứng lớp File native trên thiết bị.
-- Bundle Android do Metro phục vụ đã chứa bản sửa; đã cold-start lại Expo Go để nạp mới. Chờ người dùng chọn lại ảnh và xác nhận màn kết quả; chưa đánh dấu upload/native create/merge PASS.
+- Bundle Android do Metro phục vụ đã chứa bản sửa; đã cold-start lại Expo Go để nạp mới. Sau đó, ngày 14/11/2026, người dùng xác nhận nghiệm thu thành công iPhone thật + giả lập: upload, tạo mới/hợp nhất và xem hai ảnh trong một hồ sơ. Đây là xác nhận thủ công của người dùng, không phải agent trực tiếp thao tác thiết bị.
+
+## Nghiệm thu thủ công — 14/11/2026
+
+- [x] Người dùng xác nhận CivicMerge chạy trên iPhone thật và giả lập.
+- [x] Hai client dùng chung backend trên laptop người dùng, tạo mới rồi hợp nhất thành 1 incident, 2 reports, 2 ảnh minh chứng.
+- [ ] Hai điện thoại thật cùng backend: chưa nghiệm thu.
+- Kết quả chỉ áp dụng cho nền mock; chưa chứng minh AI/matching thật hoặc lưu bền vững sau khi backend khởi động lại.
