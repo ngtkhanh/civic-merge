@@ -14,6 +14,11 @@
     "test": "npm run test:integration",
     "test:integration": "tsx --test tests/integration/*.test.ts",
     "test:modules": "tsx scripts/check-modules.ts",
+    "test:database": "tsx --test tests/database/*.test.ts",
+    "test:storage": "tsx --test tests/storage/storage.test.ts",
+    "test:storage:live": "tsx --test tests/storage/supabase.live.test.ts",
+    "db:migrate": "tsx apps/api/scripts/migrate.ts",
+    "backend:check": "tsx apps/api/scripts/check-config.ts",
     "mock:reset": "tsx scripts/mock-reset.ts",
     "mobile:export": "npm run export:ios --workspace=@civicmerge/mobile"
   },

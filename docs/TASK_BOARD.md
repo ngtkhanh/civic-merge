@@ -1,5 +1,7 @@
 # Task board — Nền mock
 
+> Bảng dưới là snapshot công việc dựng nền ban đầu. Trạng thái cập nhật 14/11/2026 ở [MVP_READINESS_AUDIT.md](MVP_READINESS_AUDIT.md) và [báo cáo backend](BACKEND_VERIFICATION.md): PostgreSQL, Supabase Storage private và APK Android đã có; Vision/matching thật và nghiệm thu thiết bị còn thiếu. Không dùng các dòng “sau khi nhận nền” dưới đây làm trạng thái triển khai mới nhất.
+
 | Hạng mục | Chủ sở hữu | Trạng thái |
 |---|---|---|
 | AGENTS, workspace, contracts/interfaces | Nền chung / Người 3 quản lý | Đã triển khai |
