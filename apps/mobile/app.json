@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "CivicMerge",
+    "slug": "civic-merge",
+    "scheme": "civicmerge",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "CivicMerge kết nối backend trong mạng nội bộ để gửi báo cáo demo.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
+    },
+    "android": {
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "CivicMerge dùng camera để chụp ảnh minh chứng sự cố.",
+          "photosPermission": "CivicMerge dùng ảnh bạn chọn làm minh chứng sự cố.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CivicMerge dùng vị trí để tìm các hồ sơ nghi trùng gần bạn."
+        }
+      ]
+    ],
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
