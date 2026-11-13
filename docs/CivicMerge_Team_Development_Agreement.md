@@ -130,4 +130,4 @@ Một backend mock được triển khai công khai vẫn là mock. Sản phẩm
 - [Phân công bốn thành viên và pipeline](CivicMerge_4_Member_Integration_Pipeline.md).
 - [Checklist triển khai bộ khung mock](CivicMerge_Mock_Foundation_Plan.md).
 
-Phương án trong tài liệu này và tài liệu kế hoạch đã thống nhất Q1: B — iOS/iPhone thật trước; Q2: A — backend local riêng khi phát triển, backend chung khi tích hợp/demo. Việc chốt phương án chưa đồng nghĩa source code hoặc các branch đã được tạo.
+Phương án trong tài liệu này và tài liệu kế hoạch đã thống nhất Q1: B — iOS/iPhone thật trước; Q2: A — backend local riêng khi phát triển, backend chung khi tích hợp/demo. Đã triển khai source nền trên `chore/mock-foundation`; kiểm chứng tự động đã qua. Chưa nghiệm thu iPhone/hai điện thoại, chưa tích hợp vào main hoặc tạo bốn branch cá nhân. Xem [báo cáo kiểm chứng](VERIFICATION_REPORT.md).

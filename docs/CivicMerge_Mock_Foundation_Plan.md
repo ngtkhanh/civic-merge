@@ -10,7 +10,9 @@ Luồng bắt buộc:
 
 Kịch bản nghiệm thu chính: ảnh thứ nhất tạo incident A; ảnh thứ hai được đề xuất ghép vào A; sau xác nhận, hệ thống có **1 incident, 2 reports và 2 ảnh minh chứng**.
 
-Tài liệu này là kế hoạch triển khai. Việc tạo tài liệu chưa thực hiện khởi tạo ứng dụng, cài dependency, tạo branch, commit hoặc push.
+Tiến độ 13/11/2026: đã triển khai code nền trên `chore/mock-foundation`, typecheck/lint/test và export bundle iOS đã qua. Chưa nghiệm thu iPhone/hai điện thoại, chưa tích hợp main hoặc push. Người dùng đã yêu cầu commit riêng các mốc hoàn thành.
+
+Các checkbox ở phần triển khai ghi nhận code đã có; nghiệm thu trên thiết bị được theo dõi riêng và chưa đánh dấu hoàn tất. Xem [báo cáo kiểm chứng](VERIFICATION_REPORT.md).
 
 Tham chiếu:
 
@@ -70,11 +72,11 @@ Lưu trong bộ nhớ là giới hạn có chủ đích của bộ khung. Đóng
 
 ### Bước 1 — Chốt contract và quy tắc nghiệp vụ
 
-- [ ] Định nghĩa `IncidentType`, `Severity`, `Location`, `AIAnalysis`.
-- [ ] Định nghĩa `Report`, `IncidentSummary`, `IncidentDetail`, `MatchCandidate`.
-- [ ] Định nghĩa schema request/response của cả bốn API.
-- [ ] Định nghĩa interface cho AI, matching, routing, repository và storage.
-- [ ] Viết ví dụ dữ liệu hợp lệ dùng chung cho cả nhóm.
+- [x] Định nghĩa `IncidentType`, `Severity`, `Location`, `AIAnalysis`.
+- [x] Định nghĩa `Report`, `IncidentSummary`, `IncidentDetail`, `MatchCandidate`.
+- [x] Định nghĩa schema request/response của cả bốn API.
+- [x] Định nghĩa interface cho AI, matching, routing, repository và storage.
+- [x] Viết ví dụ dữ liệu hợp lệ dùng chung cho cả nhóm.
 
 Các quy tắc sẽ áp dụng:
 
@@ -119,26 +121,26 @@ tests/
 README.md
 ```
 
-- [ ] Tạo workspace và script chạy từng ứng dụng/module.
-- [ ] Thiết lập TypeScript và exports của các package.
-- [ ] Kiểm tra cách import shared package ở cả Expo và Node.
-- [ ] Ghi rõ Node, package manager và biến môi trường cần dùng.
-- [ ] Bổ sung ignore cho dependency, secret và ảnh runtime phát sinh nếu cần; giữ nguyên các thay đổi có sẵn của người dùng.
+- [x] Tạo workspace và script chạy từng ứng dụng/module.
+- [x] Thiết lập TypeScript và exports của các package.
+- [x] Kiểm tra cách import shared package ở cả Expo và Node.
+- [x] Ghi rõ Node, package manager và biến môi trường cần dùng.
+- [x] Bổ sung ignore cho dependency, secret và ảnh runtime phát sinh nếu cần; giữ nguyên các thay đổi có sẵn của người dùng.
 
 **Hoàn thành khi:** cài dependency từ root được, typecheck qua và hai ứng dụng sử dụng được contracts.
 
 ### Bước 3 — Xây backend mock có trạng thái
 
-- [ ] Tạo `GET /health` để kiểm tra backend và kết nối mạng.
-- [ ] Tạo `POST /api/reports/analyze`.
-- [ ] Tạo `POST /api/reports/confirm`.
-- [ ] Tạo `GET /api/incidents` với response cố định về cấu trúc, chưa cần pagination.
-- [ ] Tạo `GET /api/incidents/:id`.
-- [ ] Nhận và lưu ảnh thật ở local; kiểm tra loại và kích thước ảnh.
-- [ ] Tạo repository bộ nhớ cho reports, incidents và lịch sử.
-- [ ] Áp dụng confirm idempotent và đảm bảo cập nhật bộ nhớ không bị xen kẽ giữa kiểm tra và ghi.
-- [ ] Cấu hình base URL ảnh để điện thoại truy cập được; không trả đường dẫn filesystem hoặc URL `localhost` của laptop.
-- [ ] Chuẩn hóa lỗi theo contract.
+- [x] Tạo `GET /health` để kiểm tra backend và kết nối mạng.
+- [x] Tạo `POST /api/reports/analyze`.
+- [x] Tạo `POST /api/reports/confirm`.
+- [x] Tạo `GET /api/incidents` với response cố định về cấu trúc, chưa cần pagination.
+- [x] Tạo `GET /api/incidents/:id`.
+- [x] Nhận và lưu ảnh thật ở local; kiểm tra loại và kích thước ảnh.
+- [x] Tạo repository bộ nhớ cho reports, incidents và lịch sử.
+- [x] Áp dụng confirm idempotent và đảm bảo cập nhật bộ nhớ không bị xen kẽ giữa kiểm tra và ghi.
+- [x] Cấu hình base URL ảnh để điện thoại truy cập được; không trả đường dẫn filesystem hoặc URL `localhost` của laptop.
+- [x] Chuẩn hóa lỗi theo contract.
 
 Mobile chỉ gọi API, không truy cập trực tiếp repository hoặc dữ liệu fixtures. Mọi response phản ánh dữ liệu đang có: confirm phải cập nhật kết quả mà API danh sách/chi tiết trả về.
 
@@ -146,12 +148,12 @@ Mobile chỉ gọi API, không truy cập trực tiếp repository hoặc dữ l
 
 ### Bước 4 — Tạo mock module và các kịch bản tái lập
 
-- [ ] AI mock trả `AIAnalysis` theo kịch bản, không cần API key.
-- [ ] Matching mock chỉ đề xuất incident hiện có, không trả ID giả không tồn tại.
-- [ ] Routing ánh xạ `pothole`, `trash`, `flood` sang ba tổ xử lý giả định.
-- [ ] Thêm fixtures, ảnh mẫu được phép sử dụng và dữ liệu GPS mẫu.
-- [ ] Có cách chọn/reset kịch bản dành riêng cho môi trường mock.
-- [ ] Chặn cơ chế điều khiển kịch bản/reset khi không chạy mock; không trộn field điều khiển demo vào contract production.
+- [x] AI mock trả `AIAnalysis` theo kịch bản, không cần API key.
+- [x] Matching mock chỉ đề xuất incident hiện có, không trả ID giả không tồn tại.
+- [x] Routing ánh xạ `pothole`, `trash`, `flood` sang ba tổ xử lý giả định.
+- [x] Thêm fixtures, ảnh mẫu được phép sử dụng và dữ liệu GPS mẫu.
+- [x] Có cách chọn/reset kịch bản dành riêng cho môi trường mock.
+- [x] Chặn cơ chế điều khiển kịch bản/reset khi không chạy mock; không trộn field điều khiển demo vào contract production.
 
 | Kịch bản | Kết quả bắt buộc |
 |---|---|
@@ -170,38 +172,41 @@ Mock matching chỉ kiểm chứng cách các module phối hợp. Độ chính 
 
 ### Bước 5 — Nối Mobile và đi hết luồng
 
-- [ ] Trang chủ đọc danh sách từ API.
-- [ ] Màn báo cáo cho chọn/chụp ảnh, xin quyền camera và GPS.
-- [ ] Có vị trí mẫu được ghi rõ là dữ liệu demo trong mock mode.
-- [ ] Màn kết quả hiển thị analysis, cảnh báo và ứng viên nghi trùng.
-- [ ] Người dùng xem được ảnh minh chứng của hồ sơ ứng viên trước khi chọn merge; có thể lấy qua API chi tiết.
-- [ ] Nút tạo mới/hợp nhất gọi confirm, sau đó mở chi tiết incident.
-- [ ] Chi tiết hiển thị ảnh, số reports, tổ xử lý, trạng thái và lịch sử tối thiểu.
-- [ ] Có trạng thái đang tải, lỗi, danh sách rỗng và xử lý từ chối quyền.
-- [ ] Tập trung HTTP client trong `services/api.ts`; base URL đọc từ cấu hình.
+- [x] Trang chủ đọc danh sách từ API.
+- [x] Màn báo cáo cho chọn/chụp ảnh, xin quyền camera và GPS.
+- [x] Có vị trí mẫu được ghi rõ là dữ liệu demo trong mock mode.
+- [x] Màn kết quả hiển thị analysis, cảnh báo và ứng viên nghi trùng.
+- [x] Người dùng xem được ảnh minh chứng của hồ sơ ứng viên trước khi chọn merge; có thể lấy qua API chi tiết.
+- [x] Nút tạo mới/hợp nhất gọi confirm, sau đó mở chi tiết incident.
+- [x] Chi tiết hiển thị ảnh, số reports, tổ xử lý, trạng thái và lịch sử tối thiểu.
+- [x] Có trạng thái đang tải, lỗi, danh sách rỗng và xử lý từ chối quyền.
+- [x] Tập trung HTTP client trong `services/api.ts`; base URL đọc từ cấu hình.
 - [ ] Kiểm tra upload ảnh và tải ảnh trên iPhone thật theo Q1/Q2 đã chốt.
 
 **Hoàn thành khi:** người dùng thực hiện được toàn bộ luồng qua UI; dữ liệu hiển thị lấy từ backend.
 
 ### Bước 6 — Kiểm chứng và viết hướng dẫn bàn giao
 
-- [ ] Typecheck toàn workspace.
-- [ ] Kiểm thử tích hợp API: create, merge, retry cùng lựa chọn, đổi lựa chọn và merge đích không hợp lệ.
-- [ ] Kiểm tra response đúng schema và số lượng incident/report sau các thao tác.
-- [ ] Kiểm tra AI lỗi và thiếu GPS không tạo dữ liệu sai.
+- [x] Typecheck toàn workspace.
+- [x] Kiểm thử tích hợp API: create, merge, retry cùng lựa chọn, đổi lựa chọn và merge đích không hợp lệ.
+- [x] Kiểm tra response đúng schema và số lượng incident/report sau các thao tác.
+- [x] Kiểm tra AI lỗi và thiếu GPS không tạo dữ liệu sai.
 - [ ] Smoke test thiết bị: ảnh đầu tiên tạo hồ sơ; ảnh thứ hai merge; xem hai ảnh; đóng/mở Mobile và xem lại khi backend vẫn chạy.
-- [ ] Thử từ một bản clone sạch: cài đặt và chạy theo README.
-- [ ] Ghi rõ cách reset dữ liệu, đổi kịch bản và khắc phục lỗi kết nối API.
-- [ ] Ghi vị trí thay adapter mock bằng module thật, command kiểm tra và giới hạn bộ nhớ hiện tại.
+- [x] Thử bản sao source sạch: `npm ci`, typecheck, lint, modules và integration đều qua; chưa phải clone từ commit đã push.
+- [x] Ghi rõ cách reset dữ liệu, đổi kịch bản và khắc phục lỗi kết nối API.
+- [x] Ghi vị trí thay adapter mock bằng module thật, command kiểm tra và giới hạn bộ nhớ hiện tại.
 
-Các lệnh dự kiến sẽ được cung cấp sau triển khai:
+Các lệnh đã có sau triển khai:
 
 ```text
 npm ci
 npm run dev:api
 npm run dev:mobile
 npm run typecheck
+npm run lint
+npm run test:modules
 npm run test:integration
+npm run mobile:export
 npm run mock:reset
 ```
 
@@ -213,13 +218,13 @@ npm run mock:reset
 
 Chỉ dùng bộ khung làm nền chung khi:
 
-- [ ] Contracts và interface module đã có trong source code.
-- [ ] Bộ khung chạy mà không cần OpenAI/Supabase key.
+- [x] Contracts và interface module đã có trong source code.
+- [x] Bộ khung chạy mà không cần OpenAI/Supabase key.
 - [ ] Mobile gọi được Express trên iPhone thật.
 - [ ] Demo đạt **1 incident, 2 reports, 2 ảnh**.
 - [ ] Reset và chạy lại demo được.
-- [ ] Typecheck và kiểm thử tích hợp cần thiết đều qua.
-- [ ] README có hướng dẫn chạy, mock scenarios và ownership.
+- [x] Typecheck và kiểm thử tích hợp cần thiết đều qua.
+- [x] README có hướng dẫn chạy, mock scenarios và ownership.
 - [ ] Thay đổi trên branch nền được review/tích hợp theo workflow của repo.
 
 Sau khi branch nền được tích hợp vào `main`, cả bốn người tạo branch từ **cùng commit nền**:
