@@ -1,0 +1,5 @@
+{
+  "pothole": { "type": "pothole", "severity": "high", "description": "Ổ gà trên mặt đường — kết quả phân tích giả lập.", "features": ["surface:asphalt", "shape:irregular"] },
+  "trash": { "type": "trash", "severity": "medium", "description": "Rác thải tập trung ven đường — kết quả phân tích giả lập.", "features": ["material:plastic", "shape:scattered"] },
+  "flood": { "type": "flood", "severity": "high", "description": "Nước ngập mặt đường — kết quả phân tích giả lập.", "features": ["surface:water", "shape:spread"] }
+}
