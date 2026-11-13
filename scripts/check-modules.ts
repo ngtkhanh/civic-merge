@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { AIAnalysisSchema, LocationSchema } from '@civicmerge/contracts';
+import { createMockVision } from '@civicmerge/ai-vision';
+import { mockMatcher, ruleRouter } from '@civicmerge/matching';
+import fixtures from '../mocks/fixtures/analyses.json';
+import location from '../mocks/fixtures/location.json';
+for (const analysis of Object.values(fixtures)) AIAnalysisSchema.parse(analysis);
+LocationSchema.parse(location);
+const analysis = await createMockVision(() => 'pothole').analyzeIncidentImage({ bytes: new Uint8Array(), mimeType: 'image/png' });
+assert.equal(analysis.type, 'pothole');
+assert.deepEqual(await mockMatcher.findCandidates({ analysis, location, incidents: [] }), []);
+assert.match(ruleRouter.assignTeam(analysis.type), /đường bộ/);
+console.log('Fixture schemas and standalone AI/matching/routing adapters: PASS');
