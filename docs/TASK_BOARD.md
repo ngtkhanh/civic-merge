@@ -15,6 +15,6 @@
 | Tạo bốn branch riêng | Cả nhóm | Sau khi nền được nghiệm thu/tích hợp |
 | Vision thật | Người 2 | Sau khi nhận nền |
 | Supabase DB/Storage, transaction, persistence | Người 3 | Sau khi nhận nền |
-| GPS/scoring thật và tích hợp | Người 4 | Sau khi nhận nền |
+| [GPS/scoring thật và tích hợp](CivicMerge_Matching_Implementation_Plan.md) | Người 4 | Đã có matcher và tests PASS; [bàn giao](CivicMerge_Matching_Handoff.md) để Người 3 nối provider/guard resolved; chờ Vision thật và nghiệm thu thiết bị |
 
 Branch nền: `chore/mock-foundation`. Không hiểu trạng thái “đã triển khai” là đã nghiệm thu iPhone hoặc sẵn sàng production.
