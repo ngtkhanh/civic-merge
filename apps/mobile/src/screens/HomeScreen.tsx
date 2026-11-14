@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { IncidentSummary } from '@civicmerge/contracts';
-import { api, API_URL, MOCK_MODE } from '../services/api';
+import { api, API_URL, providerState, setApiUrl } from '../services/api';
+import { useFlow } from '../state/flow';
 import {
   Badge,
   Body,
@@ -34,11 +35,16 @@ export function HomeScreen({
   const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [backendUrl, setBackendUrl] = useState(API_URL);
+  const [connectionNote, setConnectionNote] = useState('');
+  const { setResult } = useFlow();
 
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
+    if (!API_URL) { setLoading(false); return; }
     try {
+      await api.health();
       setIncidents((await api.list()).incidents);
     } catch (error) {
       setError(messageOf(error));
@@ -52,6 +58,18 @@ export function HomeScreen({
       void load();
     }, [load]),
   );
+
+  async function connect() {
+    setLoading(true); setError(''); setConnectionNote('');
+    try {
+      setApiUrl(backendUrl); setBackendUrl(API_URL); setResult(null); setIncidents([]);
+      const health = await api.health();
+      setIncidents((await api.list()).incidents);
+      setConnectionNote(health.capabilities?.persistence === 'postgres' && health.capabilities.storage === 'supabase'
+        ? 'Đã kết nối PostgreSQL và Supabase Storage.' : 'Đã kết nối máy chủ.');
+    } catch (error) { setError(messageOf(error)); }
+    finally { setLoading(false); }
+  }
 
   function reset() {
     Alert.alert(
@@ -86,7 +104,7 @@ export function HomeScreen({
         <Badge tone="primary" label="ONE ISSUE, ONE RECORD" />
         <Heading>Cùng chăm sóc thành phố</Heading>
         <Body>
-          Chụp một bức ảnh sự cố đô thị. Hệ thống tự động nhận diện bằng AI và hợp nhất các phản ánh trùng lặp vào một hồ sơ duy nhất.
+          Gửi ảnh sự cố đô thị, xem đề xuất nghi trùng và xác nhận tạo hồ sơ mới hoặc hợp nhất vào hồ sơ sẵn có.
         </Body>
         <View style={s.statsRow}>
           <View style={s.statBox}>
@@ -98,7 +116,7 @@ export function HomeScreen({
             <Text style={styles.caption}>Minh chứng cộng đồng</Text>
           </View>
         </View>
-        <Button title="📷 Báo cáo sự cố mới" onPress={onReport} disabled={loading} />
+        <Button title="📷 Báo cáo sự cố mới" onPress={onReport} disabled={loading || !API_URL} />
         <Button
           title="🔄 Tải lại danh sách"
           onPress={() => void load()}
@@ -108,23 +126,33 @@ export function HomeScreen({
         />
       </Card>
 
-      {MOCK_MODE && (
+      <Card>
+        <SectionTitle>Kết nối máy chủ</SectionTitle>
+        <TextInput accessibilityLabel="Địa chỉ máy chủ" placeholder="http://<LAN-IP>:3011" value={backendUrl}
+          onChangeText={setBackendUrl} autoCapitalize="none" autoCorrect={false} keyboardType="url"
+          editable={!loading} style={styles.input} />
+        <Body>Điện thoại cần cùng Wi-Fi với laptop khi dùng địa chỉ LAN.</Body>
+        <Button title="Lưu và kết nối" onPress={() => void connect()} disabled={loading} secondary />
+        {!!connectionNote && <Text accessibilityLiveRegion="polite" style={styles.caption}>{connectionNote}</Text>}
+      </Card>
+
+      {(
         <Card style={s.mockBanner}>
           <View style={styles.rowBetween}>
-            <Badge tone="warning" label="CHẾ ĐỘ THỬ NGHIỆM (MOCK)" />
-            <Button
+            <Badge tone="neutral" label="CẤU HÌNH MÁY CHỦ" />
+            {providerState().controlsAllowed && <Button
               title="Reset dữ liệu"
               onPress={reset}
               secondary
               compact
               disabled={loading}
-            />
+            />}
           </View>
           <Text selectable style={styles.caption}>
             API: {API_URL || 'Chưa cấu hình'}
           </Text>
           <Text style={styles.caption}>
-            Môi trường demo: phân tích ảnh giả lập; khoảng cách tính theo GPS.
+            {providerState().label}
           </Text>
         </Card>
       )}
@@ -137,7 +165,7 @@ export function HomeScreen({
       {loading && <Loading label="Đang tải danh sách sự cố…" />}
       {!!error && <ErrorNotice message={error} />}
 
-      {!loading && !error && incidents.length === 0 && (
+      {!loading && !error && !!API_URL && incidents.length === 0 && (
         <Card style={s.emptyCard}>
           <Text style={s.emptyIcon}>🏙️</Text>
           <SectionTitle>Chưa có hồ sơ sự cố nào</SectionTitle>
