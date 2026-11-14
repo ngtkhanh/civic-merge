@@ -214,6 +214,7 @@ export function Photo({ uri, label }: { uri: string; label: string }) {
 }
 
 export const styles = StyleSheet.create({
+  input: { minHeight: 48, padding: 12, borderRadius: 10, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.surface, fontSize: 16 },
   page: {
     padding: 16,
     gap: 14,

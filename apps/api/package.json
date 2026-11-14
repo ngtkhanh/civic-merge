@@ -3,7 +3,7 @@
   "scripts": { "dev": "tsx watch src/server.ts", "start": "tsx src/server.ts", "typecheck": "tsc -p tsconfig.json" },
   "dependencies": {
     "@civicmerge/contracts": "*", "@civicmerge/ai-vision": "*", "@civicmerge/matching": "*",
-    "express": "^5.3.0", "multer": "^2.5.0", "dotenv": "^17.0.0"
+    "express": "^5.3.0", "multer": "^2.5.0", "dotenv": "^17.0.0", "pg": "^8.16.3"
   },
-  "devDependencies": { "@types/express": "^5.0.0", "@types/multer": "^2.0.0" }
+  "devDependencies": { "@types/express": "^5.0.0", "@types/multer": "^2.0.0", "@types/pg": "^8.15.6" }
 }

@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {
-  DomainError,
-  type AnalyzeResponse,
-  type ConfirmRequest,
-  type IncidentDetail,
-} from '@civicmerge/contracts';
-import { api, MOCK_MODE } from '../services/api';
+import type { AnalyzeResponse, ConfirmRequest, IncidentDetail } from '@civicmerge/contracts';
+import { api, providerState } from '../services/api';
+import { ApiRequestError, isDefinitiveConfirmRejection } from '../services/http-error';
 import {
   Badge,
   Body,
@@ -24,15 +20,6 @@ import {
   styles,
   TypeBadge,
 } from '../ui';
-
-// Definite server-side rejections where the report remains pending and the user
-// must be allowed to pick another candidate incident or create a new incident.
-export const REJECTION_CODES_ALLOWING_RECHOICE = new Set([
-  'INCIDENT_RESOLVED',
-  'INCIDENT_NOT_FOUND',
-  'INCIDENT_TYPE_MISMATCH',
-  'VALIDATION_ERROR',
-]);
 
 export function ResultScreen({
   result,
@@ -55,12 +42,12 @@ export function ResultScreen({
 
   useEffect(() => {
     let active = true;
-    Promise.all(result.candidates.map((candidate) => api.detail(candidate.incidentId)))
+    Promise.allSettled(result.candidates.map((candidate) => api.detail(candidate.incidentId)))
       .then((values) => {
-        if (active) setDetails(Object.fromEntries(values.map((value) => [value.id, value])));
-      })
-      .catch((error) => {
-        if (active) setError(messageOf(error));
+        if (!active) return;
+        const available = values.flatMap(value => value.status === 'fulfilled' ? [value.value] : []);
+        setDetails(Object.fromEntries(available.map(value => [value.id, value])));
+        if (values.some(value => value.status === 'rejected')) setError('Một số hồ sơ không tải được minh chứng. Bạn có thể tải lại hoặc chọn hồ sơ đã tải được.');
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -80,35 +67,22 @@ export function ResultScreen({
     setErrorCode(null);
     try {
       onConfirmed((await api.confirm(request)).incidentId);
-    } catch (err) {
-      if (err instanceof DomainError) {
-        setErrorCode(err.code);
-        if (REJECTION_CODES_ALLOWING_RECHOICE.has(err.code)) {
-          // Report is still pending: unlock selection so user can choose Create or another candidate.
+    } catch (error) {
+      if (error instanceof ApiRequestError) {
+        setErrorCode(error.code ?? null);
+        if (isDefinitiveConfirmRejection(error)) {
           setLastRequest(null);
-          if (request.action === 'merge') {
-            setRejectedIncidentIds((prev) => ({
-              ...prev,
-              [request.targetIncidentId]: err.code,
-            }));
-          }
-          if (err.code === 'INCIDENT_RESOLVED') {
-            setError(
-              `${err.message} Báo cáo của bạn vẫn đang chờ xác nhận — bạn có thể chọn Tạo hồ sơ sự cố mới hoặc hợp nhất vào một hồ sơ nghi trùng khác.`,
-            );
-          } else {
-            setError(err.message);
-          }
+          if (request.action === 'merge') setRejectedIncidentIds(previous => ({ ...previous, [request.targetIncidentId]: error.code! }));
+          setError(error.code === 'INCIDENT_RESOLVED'
+            ? `${error.message} Báo cáo vẫn đang chờ xác nhận; bạn có thể tạo mới hoặc chọn hồ sơ khác.` : error.message);
           return;
         }
-        if (err.code === 'REPORT_ALREADY_CONFIRMED') {
-          setError(
-            `${err.message} Báo cáo này đã được xác nhận trước đó, không thể đổi sang lựa chọn khác.`,
-          );
+        if (error.code === 'REPORT_ALREADY_CONFIRMED') {
+          setError(`${error.message} Báo cáo đã được xác nhận, không thể đổi lựa chọn.`);
           return;
         }
       }
-      setError(messageOf(err));
+      setError(messageOf(error));
     } finally {
       lock.current = false;
       setBusy(false);
@@ -127,17 +101,17 @@ export function ResultScreen({
         </Body>
       </View>
 
-      {MOCK_MODE && (
+      {(
         <Card style={s.warningCard}>
-          <Badge tone="warning" label="MÔI TRƯỜNG DEMO" />
-          <Body>Môi trường demo: phân tích ảnh giả lập; khoảng cách tính theo GPS.</Body>
+          <Badge tone="neutral" label="CẤU HÌNH PHÂN TÍCH" />
+          <Body>{providerState().label}</Body>
         </Card>
       )}
 
       <Card>
         <View style={styles.rowBetween}>
           <SectionTitle>Nhận diện từ hình ảnh</SectionTitle>
-          {MOCK_MODE && <Badge tone="warning" label="AI Giả lập" />}
+          {providerState().visionMock && <Badge tone="warning" label="AI Giả lập" />}
         </View>
 
         <View style={styles.rowWrap}>
@@ -204,20 +178,14 @@ export function ResultScreen({
           {result.candidates.map((candidate) => {
             const detail = details[candidate.incidentId];
             const rejectionCode = rejectedIncidentIds[candidate.incidentId];
-            const isResolved =
-              rejectionCode === 'INCIDENT_RESOLVED' || detail?.status === 'resolved';
-            const isCandidateDisabled =
-              busy || !detail || lastRequest !== null || Boolean(rejectionCode) || isAlreadyConfirmed;
-
+            const isResolved = rejectionCode === 'INCIDENT_RESOLVED' || detail?.status === 'resolved';
+            const isCandidateDisabled = busy || !detail || lastRequest !== null || Boolean(rejectionCode) || isResolved || isAlreadyConfirmed;
             return (
               <Card key={candidate.incidentId} style={s.candidateCard}>
                 <View style={styles.rowBetween}>
-                  <Badge
-                    tone={isResolved ? 'danger' : 'warning'}
-                    label={isResolved ? 'HỒ SƠ ĐÃ XỬ LÝ' : 'HỒ SƠ CÓ THỂ TRÙNG'}
-                  />
+                  <Badge tone={isResolved ? 'danger' : 'warning'} label={isResolved ? 'HỒ SƠ ĐÃ XỬ LÝ' : 'HỒ SƠ CÓ THỂ TRÙNG'} />
                   <View style={styles.rowWrap}>
-                    <Badge tone="primary" label={`📍 Cách ${candidate.distanceMeters} m`} />
+                    <Badge tone="primary" label={`📍 Cách ${candidate.distanceMeters} m${providerState().matchingMock ? ' (giả lập)' : ''}`} />
                     <Badge
                       tone="success"
                       label={`Điểm xếp hạng: ${candidate.score.toFixed(2)}`}
@@ -254,11 +222,7 @@ export function ResultScreen({
                 )}
 
                 <Button
-                  title={
-                    isResolved
-                      ? 'Hồ sơ này đã được xử lý (Chọn hồ sơ khác hoặc Tạo mới)'
-                      : '🔗 Xác nhận hợp nhất vào hồ sơ này'
-                  }
+                  title={isResolved ? 'Hồ sơ đã xử lý (Chọn hồ sơ khác hoặc Tạo mới)' : '🔗 Xác nhận hợp nhất vào hồ sơ này'}
                   tone="success"
                   disabled={isCandidateDisabled}
                   onPress={() =>

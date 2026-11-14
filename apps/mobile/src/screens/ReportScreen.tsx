@@ -5,7 +5,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import * as ExpoLocation from 'expo-location';
 import type { AnalyzeResponse, Location, MockScenario } from '@civicmerge/contracts';
 import demoLocation from '../../../../mocks/fixtures/location.json';
-import { api, MOCK_MODE, type UploadImage } from '../services/api';
+import { api, providerState, type UploadImage } from '../services/api';
 import {
   Badge,
   Body,
@@ -193,7 +193,7 @@ export function ReportScreen({
         />
 
         <View style={styles.gridTwo}>
-          {MOCK_MODE && (
+          {providerState().visionMock && (
             <View style={styles.flexOne}>
               <Button
                 title="🎯 Vị trí mẫu (Demo)"
@@ -224,7 +224,7 @@ export function ReportScreen({
         </View>
       </Card>
 
-      {MOCK_MODE && (
+      {providerState().controlsAllowed && (
         <Card style={s.mockCard}>
           <View style={styles.rowBetween}>
             <SectionTitle>3. Kịch bản AI giả lập</SectionTitle>
@@ -272,7 +272,7 @@ export function ReportScreen({
         title={
           busy
             ? 'Đang phân tích…'
-            : MOCK_MODE
+            : providerState().visionMock
               ? '🔍 Phân tích & Kiểm tra trùng (Mock)'
               : '🔍 Phân tích sự cố bằng AI'
         }
@@ -280,7 +280,7 @@ export function ReportScreen({
         onPress={() =>
           void run(async () => {
             if (!image) return;
-            if (MOCK_MODE) await api.scenario(scenario);
+            if (providerState().controlsAllowed) await api.scenario(scenario);
             onResult(await api.analyze(image, location));
           })
         }

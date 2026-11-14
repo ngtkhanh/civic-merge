@@ -1,4 +1,4 @@
-# Kiến trúc bộ khung mock
+# Kiến trúc backend và nền tích hợp
 
 ```text
 Mobile (Expo Router, 4 screens in src/app)
@@ -16,8 +16,18 @@ Mobile (Expo Router, 4 screens in src/app)
 
 Retry cùng lựa chọn trả snapshot kết quả ban đầu, dù incident đã nhận thêm reports sau đó. Muốn số minh chứng mới nhất, đọc API detail.
 
-Scenario/reset là API development riêng và chỉ được đăng ký khi `mockMode=true`. Server mặc định chỉ cho chạy mock; real bootstrap chưa được triển khai. Scenario là trạng thái backend chung, cần phối hợp khi demo; không gửi scenario như field nghiệp vụ của analyze.
+Scenario/reset là API development riêng, chỉ có khi `mockMode=true`, có `mockControl` và tất cả provider là memory/local/mock/mock. Server dùng `bootstrap/configured.ts`, chọn persistence/storage/vision/matching độc lập; cấu hình không hợp lệ hoặc thiếu factory thật làm startup thất bại. PostgreSQL hoặc Supabase Storage không có `/api/mock/*`, kể cả AI/matching vẫn mock. Không gửi scenario như field nghiệp vụ của analyze.
 
 Mỗi backend local có bộ nhớ và thư mục ảnh riêng. Dùng chung một backend khi demo hai điện thoại. Ảnh cũ không bị xóa khi reset dữ liệu nghiệp vụ; restart backend làm mất reports/incidents. Đường dẫn ảnh tạo bằng UUID, không dùng tên upload do client cung cấp.
 
-Thay module thật tại bootstrap, giữ interfaces. `supabase/README.md` ghi phần việc còn lại của Người 3.
+`repositories/postgres.ts` implement cùng interface qua `pg`, không đổi contract. Schema backend riêng `civicmerge` có incidents/reports/history/confirmations và ledger migration. Confirm dùng một transaction `READ COMMITTED`, khóa report rồi incident đích, lưu snapshot response cùng history trước commit. Hai report cùng merge một incident tuần tự tăng count qua khóa hàng; retry không tính lại snapshot. Lỗi validation/SQL rollback toàn bộ. Đọc detail dùng `REPEATABLE READ READ ONLY` để count/reports/history nhất quán. `reset()` của adapter luôn từ chối, độc lập cấu hình HTTP.
+
+`STORAGE_PROVIDER=supabase` inject adapter REST bucket private. `image_url`/`cover_image_url` lưu marker `https://civicmerge-storage.invalid/<bucket>/<prefix>/<uuid>.<ext>`, chứa bucket/key bền vững thay vì signed URL hoặc host local. HTTP boundary map marker sang `${PUBLIC_BASE_URL}/api/images/...`; proxy tải bytes có authentication backend và trả ảnh đã validate. Repository không đổi transaction/snapshot, không cần sửa migration cũ. `/uploads` vẫn phục vụ file local legacy; URL legacy giữ nguyên, cần giữ host/thư mục cũ hoặc chuyển dữ liệu có kiểm soát.
+
+Analyze validate output AI/matching trước upload; tạo pending report sau upload. Chỉ xóa object mới khi chắc chắn chưa có report tham chiếu. Lỗi INSERT transport/cancellation chưa rõ kết quả giữ object; lỗi sau khi đã lưu report không xóa ảnh. SQLSTATE lỗi INSERT xác định được chuyển thành `PendingReportWriteRejected`; cleanup thất bại không che lỗi gốc. Không có job tự động quét/xóa ảnh/dữ liệu thật.
+
+Registry `AdapterFactories` lắp `createOpenAIVision` của Người 2 và `createGpsFeatureMatcher` của Người 4 qua shared interfaces. Server và `backend:check` đọc `apps/api/.env` (process env ưu tiên), đăng ký factory cố định từ workspace; không nhận module path từ env. `AI_PROVIDER=openai` bắt buộc có `OPENAI_API_KEY`/`OPENAI_MODEL`; không tự chọn model hoặc fallback khi thiếu key. Timeout mặc định 18.000 ms được truyền cho adapter để abort upstream và wrapper giới hạn thời gian chờ của backend. `DomainError` giữ status/code. Health giữ status/mode và capabilities; `mode=real` chỉ khi PostgreSQL + Storage + cả hai module đều được chọn thật, không phải bằng chứng đã nghiệm thu dịch vụ thật.
+
+Matching đã nhận source `de31d6d`, có unit/HTTP tests chạy thuật toán thật; OpenAI đã nhận source `9a6d7f6`, kiểm thử adapter bằng phản hồi mạng giả lập. Chưa gọi OpenAI thật vì thiếu cấu hình/ảnh mẫu. Xem [chuẩn bị tích hợp](BACKEND_MERGE_READINESS.md). Repositories chặn merge mới vào resolved sau khi kiểm tra confirmation cũ, giữ retry snapshot ngay cả khi incident resolved sau đó. Không thêm status workflow hoặc sửa migration cũ. Mobile dùng health capabilities để phân biệt AI/matching trong mixed mode và chỉ bật controls nếu toàn bộ provider là mock/memory/local cùng cấu hình cho phép.
+
+Chưa auth hoặc triển khai FPT; proxy ảnh là endpoint demo tin cậy, bucket private không thay thế quyền người dùng. Xem [bàn giao Storage](BACKEND_STORAGE.md), [database/TLS/migration](../supabase/README.md), [kết quả kiểm chứng mới](BACKEND_VERIFICATION.md); báo cáo database cũ là lịch sử chặng trước.

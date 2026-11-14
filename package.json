@@ -14,8 +14,21 @@
     "test": "npm run test:integration",
     "test:integration": "tsx --test tests/integration/*.test.ts",
     "test:modules": "tsx scripts/check-modules.ts",
+    "test:database": "tsx --test tests/database/*.test.ts",
+    "test:storage": "tsx --test tests/storage/storage.test.ts",
+    "test:storage:live": "tsx --test tests/storage/supabase.live.test.ts",
+    "db:migrate": "tsx apps/api/scripts/migrate.ts",
+    "backend:check": "tsx apps/api/scripts/check-config.ts",
+    "demo:start": "tsx apps/api/scripts/demo.ts start",
+    "demo:status": "tsx apps/api/scripts/demo.ts status",
+    "demo:stop": "tsx apps/api/scripts/demo.ts stop",
+    "demo:check": "tsx apps/api/scripts/demo.ts check",
+    "test:demo": "tsx --test tests/demo/*.test.ts",
+    "test:mobile": "tsx --test tests/mobile/*.test.ts",
     "mock:reset": "tsx scripts/mock-reset.ts",
-    "mobile:export": "npm run export:ios --workspace=@civicmerge/mobile"
+    "mobile:export": "npm run export:ios --workspace=@civicmerge/mobile",
+    "mobile:export:android": "npm run export:android --workspace=@civicmerge/mobile",
+    "mobile:apk": "npm run build:apk --workspace=@civicmerge/mobile"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

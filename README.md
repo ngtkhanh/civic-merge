@@ -1,6 +1,6 @@
 # CivicMerge
 
-One Issue, One Record — bộ khung mock cho đội bốn người. Ưu tiên iOS/iPhone thật; mỗi người chạy backend riêng khi phát triển, dùng chung một backend khi tích hợp/demo.
+One Issue, One Record — nền tích hợp cho đội bốn người. Backend hỗ trợ PostgreSQL và Supabase Storage thật; AI/matching hiện vẫn mock. Ưu tiên iOS/iPhone thật; mỗi người chạy backend riêng khi phát triển, dùng chung một backend khi tích hợp/demo.
 
 ## Yêu cầu
 
@@ -19,8 +19,8 @@ npm ci
 Tạo hai file cấu hình (không ghi đè nếu đã tồn tại):
 
 ```powershell
-Copy-Item .env.example apps/api/.env
-Copy-Item apps/mobile/.env.example apps/mobile/.env
+if (!(Test-Path apps/api/.env)) { Copy-Item .env.example apps/api/.env }
+if (!(Test-Path apps/mobile/.env)) { Copy-Item apps/mobile/.env.example apps/mobile/.env }
 ```
 
 Đổi **hai địa chỉ mẫu** trong các file vừa tạo sang cùng địa chỉ LAN của laptop, ví dụ:
@@ -49,6 +49,8 @@ npm run dev:mobile
 Trước khi quét QR, mở `http://<IP-laptop>:3000/health` bằng Safari trên iPhone; phải thấy `{"status":"ok","mode":"mock"}`. Sau đó mở dự án bằng client Expo tương thích. Mobile lấy dữ liệu qua HTTP thật và kiểm tra response theo shared schema.
 
 ## Chạy demo hai ảnh → một hồ sơ
+
+Để thử **PostgreSQL + Supabase Storage thật với AI/matching mock**, dùng backend riêng cổng 3011 theo [demo runbook](docs/DEMO_RUNBOOK.md): trên Windows double-click **`CivicMerge.cmd`** tại root repo, hoặc `npm run demo:start` bằng Node 24. Launcher tự tìm IP và khởi động lại đúng demo khi IP đổi. `demo:check` chỉ đọc cấu hình, `demo:status` xem phiên và `demo:stop` dừng đúng demo qua IPC. Không thay backend 3000 hoặc reset dữ liệu. Các bước reset bên dưới chỉ dành cho memory/local/mock/mock.
 
 1. Chỉ định **một backend**, cho hai điện thoại dùng cùng URL API; phối hợp trước khi reset.
 2. Trang chủ → **Reset dữ liệu mock** (hoặc chạy `npm run mock:reset` trên máy đang chạy backend).
@@ -89,16 +91,18 @@ npm run mobile:export
 |---|---|---|
 | 1 | `apps/mobile/` | Hoàn thiện UI, nghiệm thu iPhone |
 | 2 | `packages/ai-vision/` | Implement `VisionAnalyzer`, trả analysis hợp schema hoặc `DomainError` |
-| 3 | `apps/api/`, `supabase/` | Implement `IncidentRepository`, `ImageStorage`; transaction DB và persistence |
+| 3 | `apps/api/`, `supabase/` | Bàn giao PostgreSQL/Storage; lắp factory thật sau khi nhận từ Người 2/4 |
 | 4 | `packages/matching/` | Implement `DuplicateMatcher`; GPS/scoring; điều phối tích hợp |
 
-Schema và interfaces ở `packages/contracts/src/index.ts`. Chỗ lắp module hiện tại là `apps/api/src/bootstrap/mock.ts`; backend thật tạo bootstrap riêng dùng `createApp`, không dùng bootstrap mock. `server.ts` cố ý từ chối khởi động nếu `MOCK_MODE` không phải `true` khi chưa có adapters thật.
+Schema và interfaces ở `packages/contracts/src/index.ts`. Server dùng `apps/api/src/bootstrap/configured.ts` để chọn persistence/storage/vision/matching độc lập và inject vào `createApp`. Factory AI/matching thật được đăng ký sau khi owner bàn giao; chọn provider chưa có sẽ lỗi startup, không fallback. `bootstrap/mock.ts` và `bootstrap/postgres.ts` được giữ tương thích cho caller/test cũ.
 
-Không đổi contract riêng trong từng branch. Sau khi nghiệm thu thiết bị và review, tích hợp branch nền vào `main` theo workflow nhóm, rồi tạo bốn branch từ cùng commit. Hiện chưa tự commit/push/merge hoặc tạo branch cá nhân.
+Mặc định `PERSISTENCE_MODE=memory`, `STORAGE_PROVIDER=local`, `AI_PROVIDER=mock`, `MATCHING_PROVIDER=mock` vẫn chạy nền cũ. Chọn `postgres` và `supabase` để lưu nghiệp vụ/ảnh bền vững, giữ AI/matching mock rõ ràng. Chỉ tổ hợp memory/local/mock/mock có reset/scenario API. Cấu hình và migration ở [hướng dẫn database](supabase/README.md); Storage private, URL ảnh ổn định, kiểm thử riêng và điểm lắp factory ở [bàn giao backend/Storage](docs/BACKEND_STORAGE.md). `npm run backend:check` kiểm tra startup chỉ đọc, không mở server hoặc sửa dữ liệu. Health có thêm `capabilities` tùy chọn, các field cũ giữ nguyên.
+
+Không đổi contract riêng trong từng branch. Workflow nhóm vẫn yêu cầu nghiệm thu/review trước tích hợp. Theo yêu cầu chặng database của Người 3, đã tạo `feature/backend` từ `411279b` trên `chore/mock-foundation`; chưa merge vào `main`, commit hoặc push chặng database.
 
 ## Giới hạn hiện tại
 
-- Mock AI/matching; database bộ nhớ; ảnh local. Chưa có Supabase, Vision thật hoặc auth. Backend này dành cho môi trường phát triển tin cậy; chưa triển khai Internet.
+- Chọn AI mock/OpenAI và matching mock/GPS-features độc lập; các factory bàn giao đã được ghép. OpenAI được kiểm thử bằng mạng giả lập, chưa gọi dịch vụ thật; xem [chuẩn bị merge backend](docs/BACKEND_MERGE_READINESS.md). Database memory/PostgreSQL và ảnh local/Supabase private giữ nguyên. APK cũ đã cài/kết nối theo xác nhận người dùng; chưa nghiệm thu camera/GPS/create/merge hoặc build APK mới chứa source vừa ghép. Chưa auth/Internet/FPT; backend và proxy ảnh dành cho môi trường phát triển tin cậy.
 - Upload giới hạn 8 MB, MIME và chữ ký JPEG/PNG/WebP phải khớp; đây chưa phải kiểm tra giải mã toàn ảnh. Mobile chuẩn hóa ảnh chọn/chụp sang JPEG.
 - Chưa kiểm chứng camera/GPS, quyền mạng, Dynamic Type, xoay màn hình hoặc luồng hai điện thoại trên iPhone thật.
 - `npm audit` tại lần triển khai này báo **8 moderate** trong chuỗi Expo/fingerprint và TypeScript ESLint dùng minimatch. `npm audit fix` không giải quyết được các cảnh báo; không chạy `--force` vì đề xuất downgrade Expo major. Cần theo dõi bản sửa tương thích SDK.
@@ -108,7 +112,12 @@ Không đổi contract riêng trong từng branch. Sau khi nghiệm thu thiết 
 - [Phương án thống nhất đội](docs/CivicMerge_Team_Development_Agreement.md)
 - [Checklist nền mock](docs/CivicMerge_Mock_Foundation_Plan.md)
 - [Hướng dẫn iPhone](docs/IPHONE_SETUP.md)
+- [Đóng gói và cài APK Android](docs/ANDROID_APK.md)
 - [Kiến trúc](docs/ARCHITECTURE.md)
+- [Cấu hình backend và Storage](docs/BACKEND_STORAGE.md)
+- [Bàn giao và tích hợp Backend/Matching](docs/MATCHING_BACKEND_INTEGRATION.md)
+- [Kiểm chứng backend/Storage](docs/BACKEND_VERIFICATION.md)
 - [API contract](docs/API_CONTRACT.md)
 - [Kiểm thử và nghiệm thu](docs/INTEGRATION_TESTS.md)
 - [Task board](docs/TASK_BOARD.md)
+- [Đối chiếu MVP và backlog triển khai](docs/MVP_READINESS_AUDIT.md)
