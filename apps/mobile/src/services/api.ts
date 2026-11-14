@@ -1,5 +1,5 @@
 import {
-  AnalyzeResponseSchema, ApiErrorSchema, ConfirmResponseSchema, HealthSchema,
+  AnalyzeResponseSchema, ApiErrorSchema, ConfirmResponseSchema, DomainError, HealthSchema,
   IncidentDetailSchema, IncidentListResponseSchema, MockStateSchema,
   type ConfirmRequest, type Location, type MockScenario,
 } from '@civicmerge/contracts';
@@ -19,7 +19,10 @@ async function request<T>(route: string, schema: { parse(value: unknown): T }, i
     const body: unknown = await response.json();
     if (!response.ok) {
       const parsed = ApiErrorSchema.safeParse(body);
-      throw new Error(parsed.success ? parsed.data.error.message : `API trả lỗi HTTP ${response.status}.`);
+      if (parsed.success) {
+        throw new DomainError(parsed.data.error.code, parsed.data.error.message, response.status);
+      }
+      throw new Error(`API trả lỗi HTTP ${response.status}.`);
     }
     return schema.parse(body);
   } catch (error) {
