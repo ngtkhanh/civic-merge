@@ -1,123 +1,202 @@
 # CivicMerge
 
-One Issue, One Record — nền tích hợp cho đội bốn người. Backend hỗ trợ PostgreSQL và Supabase Storage thật; AI/matching hiện vẫn mock. Ưu tiên iOS/iPhone thật; mỗi người chạy backend riêng khi phát triển, dùng chung một backend khi tích hợp/demo.
+**One Issue, One Record — Một sự cố, một hồ sơ thống nhất.**
 
-## Yêu cầu
+CivicMerge giúp người dân phản ánh sự cố đô thị bằng ảnh và vị trí. AI hỗ trợ nhận diện, mô tả sự cố; hệ thống tìm các hồ sơ có thể trùng để người dùng xem và xác nhận hợp nhất. Nhiều phản ánh về cùng một sự cố được tập hợp vào một hồ sơ, giữ lại từng báo cáo và ảnh minh chứng.
 
-- Node **24.x LTS**, từ 24.13.0; phiên bản đã kiểm tra: **24.21.0**, npm **11.19.0**.
-- Client iOS tương thích **Expo SDK 58** để thử thiết bị. Xem [hướng dẫn iPhone](docs/IPHONE_SETUP.md) trước bước này.
-- Laptop và điện thoại có thể kết nối qua LAN. Không cần OpenAI/Supabase key để chạy mock.
+MVP tập trung vào **ổ gà, rác thải và ngập nước**, với ứng dụng React Native/Expo cho iOS và Android.
 
-## Cài và chạy
+> **Trạng thái ngày 14/11/2026:** Theo xác nhận của nhóm, luồng tích hợp với OpenAI Vision, matching GPS/đặc điểm ảnh, PostgreSQL và Supabase Storage đã chạy được. Repo vẫn giữ chế độ mock để phát triển và kiểm thử; cấu hình chạy quyết định module nào được sử dụng.
 
-Chạy từ root repo. Trên PowerShell nếu `npm.ps1` bị chặn, thay `npm` bằng `npm.cmd`, `npx` bằng `npx.cmd`; không cần thay execution policy.
+## Người dùng và vấn đề
+
+| Người dùng mục tiêu | Khó khăn CivicMerge hướng tới giải quyết |
+|---|---|
+| Sinh viên, cư dân chung cư và khu đô thị | Mất công viết mô tả, chọn loại sự cố, tìm nơi tiếp nhận và theo dõi phản ánh |
+| Ban quản lý trường học, chung cư và khu đô thị | Phải đọc, phân loại và đối chiếu nhiều phản ánh về cùng một sự cố |
+
+Giá trị cốt lõi là giảm thao tác báo cáo và tập hợp thông tin phân tán thành hồ sơ có nhiều minh chứng, giúp bên tiếp nhận dễ theo dõi hơn.
+
+**Bằng chứng về nhu cầu:** Tài liệu trong repo chưa ghi nhận phỏng vấn, khảo sát hoặc dữ liệu phản ánh thực tế từ người dùng ngoài nhóm. Các khó khăn trên là giả thuyết cần tiếp tục xác thực; kết quả chạy ứng dụng chứng minh khả năng thực hiện luồng sản phẩm, không thay cho bằng chứng về nhu cầu hay hiệu quả ngoài thực tế.
+
+## AI giúp người dùng như thế nào?
+
+1. **Chụp hoặc chọn ảnh:** Ứng dụng lấy vị trí khi người dùng cho phép.
+2. **Phân tích ảnh:** Backend gọi OpenAI Vision để gợi ý loại sự cố, mô tả, mức độ nghiêm trọng và đặc điểm ảnh, giúp giảm nhập liệu.
+3. **Tìm hồ sơ có thể trùng:** Thuật toán matching kết hợp loại sự cố, GPS và đặc điểm ảnh để xếp hạng ứng viên.
+4. **Người dùng xác nhận:** Xem ảnh minh chứng rồi chọn tạo hồ sơ mới hoặc hợp nhất vào hồ sơ đã có.
+5. **Lưu và theo dõi:** Lưu báo cáo, ảnh và lịch sử; gán tổ xử lý theo bảng quy tắc thí điểm.
+
+AI phân tích nội dung ảnh; matching là thuật toán so khớp; phân công tổ xử lý là quy tắc. **Hệ thống chỉ đề xuất hợp nhất, người dùng quyết định.** Nhóm không tự huấn luyện mô hình AI.
+
+## Demo trực tiếp trên điện thoại
+
+Kịch bản trình diễn trên **iPhone thật (iOS)**:
+
+1. Đóng hẳn rồi mở lại ứng dụng, kết nối backend của nhóm.
+2. Chụp/chọn ảnh thật của một sự cố, lấy GPS và gửi phân tích AI.
+3. Xem kết quả, xác nhận **Tạo hồ sơ mới** và ghi lại hồ sơ vừa tạo.
+4. Gửi ảnh khác của cùng sự cố ở gần vị trí đầu; xem hồ sơ được đề xuất cùng ảnh minh chứng.
+5. Chọn **Xác nhận hợp nhất**, mở chi tiết để kiểm tra **một incident, hai reports và hai ảnh**.
+6. Tải lại hoặc mở lại ứng dụng để xem hồ sơ đã lưu.
+
+Có thể dùng hai điện thoại cùng backend để trình diễn hai người cùng phản ánh. Một điện thoại gửi hai ảnh chỉ chứng minh luồng trên một thiết bị.
+
+Ứng dụng cũng có [hướng dẫn cài APK Android](docs/ANDROID_APK.md). APK cũ không tự nhận thay đổi mã nguồn; cần dùng bản build phù hợp với phiên bản đem demo.
+
+## Phần chuẩn bị trước và phần làm trong ngày
+
+| Thời điểm | Phạm vi |
+|---|---|
+| **Chuẩn bị trước** | Xây dựng ý tưởng, thiết kế luồng nghiệp vụ và dựng khung chạy được với dữ liệu mock |
+| **Trong ngày** | Hoàn thiện giao diện mobile; xây dựng module phân tích ảnh qua OpenAI và matching GPS/đặc điểm ảnh; tích hợp backend với PostgreSQL và Supabase Storage; kiểm thử luồng tạo hồ sơ và xác nhận hợp nhất |
+
+## Công nghệ, công cụ và bài học
+
+| Thành phần | Công nghệ / vai trò |
+|---|---|
+| Mobile | React Native, Expo, Expo Router, TypeScript |
+| Backend | Node.js, Express, TypeScript; Mobile giao tiếp qua HTTP API |
+| Phân tích ảnh | OpenAI Vision API, gọi từ backend |
+| Matching | Thuật toán GPS và đặc điểm ảnh do nhóm xây dựng |
+| Dữ liệu và ảnh | Supabase PostgreSQL và Supabase Storage |
+| Cấu trúc dự án | npm workspaces, schema/interface dùng chung trong `packages/contracts/` |
+| Phối hợp | Git/GitHub |
+| Hỗ trợ phát triển | Codex hỗ trợ dựng khung mock, viết và rà soát mã, xử lý lỗi tích hợp, bổ sung kiểm thử và tài liệu |
+
+**Một bài học:** Thống nhất cấu trúc dữ liệu và interface từ sớm giúp các thành viên phát triển song song, thay module mock bằng module thật và tích hợp ít vướng mắc hơn.
+
+## Người dùng đầu tiên và hướng mở rộng
+
+Nhóm dự kiến phối hợp với ban quản lý tại một trường đại học hoặc khu chung cư để thử nghiệm trong phạm vi nhỏ. Người dùng được tiếp cận qua nhóm cộng đồng và mã QR; nhóm sẽ thu thập phản hồi, đo thời gian gửi báo cáo, tỷ lệ phản ánh trùng và mức độ sử dụng lại.
+
+Từ kết quả thí điểm, sản phẩm có thể mở rộng sang các trường học, khu đô thị và khu công nghiệp bằng cách điều chỉnh loại sự cố và quy tắc phân công. Hướng kinh doanh dự kiến là phần mềm thuê bao cho đơn vị quản lý, người dân gửi phản ánh miễn phí. Về dài hạn, nhóm hướng tới tích hợp với hệ thống phản ánh đô thị và dịch vụ công hiện có. Đây là kế hoạch phát triển, chưa phải xác nhận đã có đối tác hoặc khách hàng trả tiền.
+
+## Chạy repo
+
+### Yêu cầu
+
+- Node **24.x**, từ **24.13.0**; toolchain đã kiểm tra: Node **24.21.0**, npm **11.19.0**.
+- Client iOS/Android tương thích **Expo SDK 58**, hoặc bản build ứng dụng của nhóm. Xem [hướng dẫn iPhone](docs/IPHONE_SETUP.md) và [Android](docs/ANDROID_APK.md).
+- Điện thoại truy cập được backend qua LAN; chạy OpenAI/Supabase cần kết nối Internet và credential riêng.
+
+Chạy lệnh từ root repo. Trên PowerShell, dùng `npm.cmd` / `npx.cmd` nếu `.ps1` bị chặn.
 
 ```sh
 npm ci
 ```
 
-Tạo hai file cấu hình (không ghi đè nếu đã tồn tại):
+Tạo cấu hình nếu chưa có; giữ nguyên file đang sử dụng:
 
 ```powershell
 if (!(Test-Path apps/api/.env)) { Copy-Item .env.example apps/api/.env }
 if (!(Test-Path apps/mobile/.env)) { Copy-Item apps/mobile/.env.example apps/mobile/.env }
 ```
 
-Đổi **hai địa chỉ mẫu** trong các file vừa tạo sang cùng địa chỉ LAN của laptop, ví dụ:
+Đặt `PUBLIC_BASE_URL` ở backend và `EXPO_PUBLIC_API_URL` ở Mobile cùng là URL LAN của laptop, ví dụ `http://192.168.1.20:3000`. Nếu app đã lưu URL ở mục **Kết nối máy chủ**, cập nhật cả địa chỉ đó. `localhost` trên điện thoại trỏ về chính điện thoại.
+
+### Chạy đầy đủ module thật
+
+Trong `apps/api/.env`, chọn:
 
 ```dotenv
-# apps/api/.env
-PUBLIC_BASE_URL=http://192.168.1.20:3000
-# apps/mobile/.env
-EXPO_PUBLIC_API_URL=http://192.168.1.20:3000
+PERSISTENCE_MODE=postgres
+STORAGE_PROVIDER=supabase
+AI_PROVIDER=openai
+MATCHING_PROVIDER=real
+MOCK_MODE=false
 ```
 
-Giữ `MOCK_MODE=true` ở backend và `EXPO_PUBLIC_MOCK_MODE=true` ở mobile. Dùng `ipconfig` trên Windows để tìm IPv4 của Wi-Fi đang sử dụng, tránh chọn adapter VPN/ảo.
+Cấu hình riêng `DATABASE_URL`, TLS database, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SUPABASE_STORAGE_BUCKET`, `OPENAI_API_KEY` và `OPENAI_MODEL`. Xem [database và migration](supabase/README.md), [Storage](docs/BACKEND_STORAGE.md) và [module Vision](packages/ai-vision/README.md).
 
-Terminal 1:
+Trong `apps/mobile/.env`, đặt `EXPO_PUBLIC_MOCK_MODE=false` và `EXPO_PUBLIC_MOCK_CONTROLS=false`. Key OpenAI và credential database/Supabase chỉ đặt ở backend; không đưa vào Mobile hoặc commit `.env`.
 
 ```sh
+npm run backend:check
 npm run dev:api
 ```
 
-Terminal 2:
+`backend:check` kiểm tra cấu hình và khả năng truy cập database/bucket, không phân tích ảnh hoặc tạo báo cáo. Mở terminal thứ hai:
 
 ```sh
 npm run dev:mobile
 ```
 
-Trước khi quét QR, mở `http://<IP-laptop>:3000/health` bằng Safari trên iPhone; phải thấy `{"status":"ok","mode":"mock"}`. Sau đó mở dự án bằng client Expo tương thích. Mobile lấy dữ liệu qua HTTP thật và kiểm tra response theo shared schema.
+Trên trình duyệt điện thoại, mở `http://<LAN-IP>:3000/health`. Với cấu hình đầy đủ, kết quả có:
 
-## Chạy demo hai ảnh → một hồ sơ
+```json
+{
+  "status": "ok",
+  "mode": "real",
+  "capabilities": {
+    "persistence": "postgres",
+    "storage": "supabase",
+    "vision": "openai",
+    "matching": "real"
+  }
+}
+```
 
-Để thử **PostgreSQL + Supabase Storage thật với AI/matching mock**, dùng backend riêng cổng 3011 theo [demo runbook](docs/DEMO_RUNBOOK.md): trên Windows double-click **`CivicMerge.cmd`** tại root repo, hoặc `npm run demo:start` bằng Node 24. Launcher tự tìm IP và khởi động lại đúng demo khi IP đổi. `demo:check` chỉ đọc cấu hình, `demo:status` xem phiên và `demo:stop` dừng đúng demo qua IPC. Không thay backend 3000 hoặc reset dữ liệu. Các bước reset bên dưới chỉ dành cho memory/local/mock/mock.
+Health cho biết các provider được chọn; gửi một ảnh mới để kiểm tra lần phân tích thực tế. Mở ứng dụng và thực hiện kịch bản demo ở trên.
 
-1. Chỉ định **một backend**, cho hai điện thoại dùng cùng URL API; phối hợp trước khi reset.
-2. Trang chủ → **Reset dữ liệu mock** (hoặc chạy `npm run mock:reset` trên máy đang chạy backend).
-3. Điện thoại 1 → Báo cáo → chụp/chọn ảnh đầu → **Dùng vị trí mẫu (demo)** → kịch bản **Ổ gà** → phân tích → **Tạo hồ sơ mới**.
-4. Điện thoại 2 → Báo cáo → ảnh thứ hai → cùng vị trí mẫu và kịch bản → phân tích → xem minh chứng → **Xác nhận hợp nhất**.
-5. Mở chi tiết: phải thấy **2 minh chứng**, một tổ xử lý và hai sự kiện lịch sử trong cùng hồ sơ. Tải lại danh sách trên điện thoại 1 để xem cập nhật.
-6. Đóng/mở Mobile và xem lại khi backend vẫn chạy. Khởi động lại backend sẽ mất dữ liệu mock.
+### Chạy mock để xem luồng, không cần credential
 
-Có thể dùng ảnh riêng hoặc bốn PNG tổng hợp trong `mocks/images/`. Backend không phân tích nội dung ảnh trong mock mode; scenario trên màn báo cáo chọn kết quả. Khoảng cách 12 m và score 0.92 là cố định, chưa phải kết quả thuật toán thật.
+Trong `apps/api/.env`, chọn `PERSISTENCE_MODE=memory`, `STORAGE_PROVIDER=local`, `AI_PROVIDER=mock`, `MATCHING_PROVIDER=mock`, `MOCK_MODE=true`. Trong Mobile, chọn `EXPO_PUBLIC_MOCK_MODE=true` và `EXPO_PUBLIC_MOCK_CONTROLS=true`, rồi chạy hai terminal API/Mobile như trên.
 
-## Các kịch bản khác
+Chọn kịch bản **Ổ gà** và **Dùng vị trí mẫu (demo)** cho hai lần gửi ảnh; lần đầu tạo mới, lần sau xác nhận hợp nhất. Dữ liệu nghiệp vụ trong memory mất khi restart backend. Chỉ chế độ memory/local/mock/mock có controls đổi scenario/reset; không reset backend dùng chung khi người khác đang sử dụng.
 
-- **Rác thải / Ngập nước:** chọn scenario tương ứng; chỉ incident cùng loại và có vị trí mới được mock đề xuất.
-- **AI lỗi:** backend trả 503, không tạo report hoặc lưu ảnh.
-- **Không GPS:** chọn gửi không kèm GPS; được báo cáo nhưng candidates rỗng và có cảnh báo.
-- **Retry confirm:** cùng report/lựa chọn trả kết quả xác nhận ban đầu; đổi lựa chọn trả 409.
-- **Reset:** chỉ xóa dữ liệu nghiệp vụ trong backend đang chạy, phục hồi scenario ổ gà. Ảnh local cũ còn trong `.runtime/uploads/`, không được đưa vào Git.
-- Script reset mặc định gọi `127.0.0.1:<PORT>`; đặt `MOCK_API_URL` khi muốn trỏ vào backend khác. Không dùng reset trên backend chung khi người khác đang thử.
+**Launcher `CivicMerge.cmd` / `npm run demo:start` là luồng riêng:** dùng PostgreSQL và Supabase Storage, nhưng cố ý ép AI/matching sang mock, cổng mặc định 3011. Launcher này cần credential lưu trữ và không dùng để demo AI thật. Xem [demo runbook](docs/DEMO_RUNBOOK.md).
 
-## Kiểm chứng
+## Khai báo dữ liệu mô phỏng và phạm vi MVP
+
+- Bốn PNG trong [`mocks/images/`](mocks/images/README.md) là ảnh tổng hợp từ hình học, dùng kiểm tra upload/hiển thị; không phải dữ liệu sự cố thật hoặc dữ liệu đánh giá AI.
+- Trong chế độ mock, kết quả Vision theo scenario, không theo nội dung ảnh; điểm matching `0.92` và khoảng cách `12 m` là cố định. Vị trí mẫu được ghi rõ là demo.
+- Matching thật trả điểm xếp hạng, không phải xác suất hay tỷ lệ chính xác. Repo chưa có kết quả đánh giá hiện trường để công bố độ chính xác hoặc mức tiết kiệm thời gian.
+- Các tổ đường bộ/vệ sinh/thoát nước là tổ xử lý thí điểm theo bảng quy tắc. MVP chưa tự gửi phản ánh đến cơ quan nhà nước hoặc tích hợp hệ thống chính quyền.
+- Thiếu GPS vẫn gửi báo cáo được, nhưng không có đề xuất hồ sơ trùng và có cảnh báo.
+- Analyze chỉ tạo báo cáo chờ xác nhận. Retry confirm cùng lựa chọn không nhân đôi dữ liệu; đổi lựa chọn sau khi đã xác nhận trả conflict.
+- Backend hiện dành cho môi trường phát triển/demo tin cậy, chưa có xác thực người dùng hoặc cấu hình triển khai production. Upload giới hạn 8 MB, kiểm tra MIME/chữ ký ảnh; chưa kiểm tra giải mã toàn ảnh.
+
+## Kiểm thử và bằng chứng chạy
+
+Các lệnh kiểm tra chính:
 
 ```sh
 npm run typecheck
 npm run lint
 npm run test:modules
 npm run test:integration
+npm run test --workspace=@civicmerge/ai-vision
+npm run test --workspace=@civicmerge/matching
+npm run test:mobile
+npm run test:storage
+npm run test:demo
 npm run mobile:export
 ```
 
-- `test:modules`: chạy fixtures/schema và adapter riêng, không cần Mobile/backend đang chạy.
-- `test:integration`: tự mở server trên port ngẫu nhiên, kiểm tra pipeline và cleanup thư mục test riêng.
-- `mobile:export`: kiểm tra Metro đóng gói iOS; **không tạo IPA hoặc chứng minh đã chạy trên iPhone**.
-- Trong sandbox Windows, tsx có thể lỗi `uv_os_get_passwd`; chạy ở terminal được phép truy cập tài khoản Windows. Không sửa code nghiệp vụ để né lỗi môi trường này.
+Tests tự động kiểm tra logic module, API, create/merge, retry và các nhánh lỗi. Một số test dùng phản hồi OpenAI/Storage giả lập; kết quả PASS của chúng không đồng nghĩa đã gọi dịch vụ live. Export iOS kiểm tra bundle, không tạo IPA hoặc thay cho chạy trên thiết bị. Test database/live có cấu hình riêng; không dùng database/bucket đang demo làm nơi reset hoặc nạp fixture.
 
-## Phân công và thay module thật
+**Xác nhận hiện tại:** Ngày 14/11/2026, nhóm xác nhận toàn bộ luồng tích hợp với các module thật đã chạy được. Các báo cáo dưới đây lưu kết quả tự động và thủ công theo từng giai đoạn; những mục “chưa nghiệm thu” ở báo cáo cũ phản ánh thời điểm soạn tài liệu đó:
 
-| Người | Thư mục | Bước tiếp theo |
-|---|---|---|
-| 1 | `apps/mobile/` | Hoàn thiện UI, nghiệm thu iPhone |
-| 2 | `packages/ai-vision/` | Implement `VisionAnalyzer`, trả analysis hợp schema hoặc `DomainError` |
-| 3 | `apps/api/`, `supabase/` | Bàn giao PostgreSQL/Storage; lắp factory thật sau khi nhận từ Người 2/4 |
-| 4 | `packages/matching/` | Implement `DuplicateMatcher`; GPS/scoring; điều phối tích hợp |
+- [Kiểm chứng nền mock và iPhone + giả lập](docs/VERIFICATION_REPORT.md)
+- [Kiểm chứng backend/database/Storage](docs/BACKEND_VERIFICATION.md)
+- [Kiểm thử bản tích hợp các module](docs/BACKEND_MERGE_READINESS.md)
+- [Hướng dẫn kiểm thử tích hợp](docs/INTEGRATION_TESTS.md)
 
-Schema và interfaces ở `packages/contracts/src/index.ts`. Server dùng `apps/api/src/bootstrap/configured.ts` để chọn persistence/storage/vision/matching độc lập và inject vào `createApp`. Factory AI/matching thật được đăng ký sau khi owner bàn giao; chọn provider chưa có sẽ lỗi startup, không fallback. `bootstrap/mock.ts` và `bootstrap/postgres.ts` được giữ tương thích cho caller/test cũ.
+## Cấu trúc repo và tài liệu
 
-Mặc định `PERSISTENCE_MODE=memory`, `STORAGE_PROVIDER=local`, `AI_PROVIDER=mock`, `MATCHING_PROVIDER=mock` vẫn chạy nền cũ. Chọn `postgres` và `supabase` để lưu nghiệp vụ/ảnh bền vững, giữ AI/matching mock rõ ràng. Chỉ tổ hợp memory/local/mock/mock có reset/scenario API. Cấu hình và migration ở [hướng dẫn database](supabase/README.md); Storage private, URL ảnh ổn định, kiểm thử riêng và điểm lắp factory ở [bàn giao backend/Storage](docs/BACKEND_STORAGE.md). `npm run backend:check` kiểm tra startup chỉ đọc, không mở server hoặc sửa dữ liệu. Health có thêm `capabilities` tùy chọn, các field cũ giữ nguyên.
+| Đường dẫn | Nội dung |
+|---|---|
+| `apps/mobile/` | Ứng dụng iOS/Android |
+| `apps/api/` | HTTP API, cấu hình và nối các module |
+| `packages/contracts/` | Schema dữ liệu và interface dùng chung |
+| `packages/ai-vision/` | Vision mock và adapter OpenAI |
+| `packages/matching/` | Matching mock, matching GPS/đặc điểm ảnh và routing theo quy tắc |
+| `supabase/` | Migration và hướng dẫn database |
+| `tests/`, `mocks/` | Kiểm thử và dữ liệu mô phỏng |
 
-Không đổi contract riêng trong từng branch. Workflow nhóm vẫn yêu cầu nghiệm thu/review trước tích hợp. Theo yêu cầu chặng database của Người 3, đã tạo `feature/backend` từ `411279b` trên `chore/mock-foundation`; chưa merge vào `main`, commit hoặc push chặng database.
-
-## Giới hạn hiện tại
-
-- Chọn AI mock/OpenAI và matching mock/GPS-features độc lập; các factory bàn giao đã được ghép. OpenAI được kiểm thử bằng mạng giả lập, chưa gọi dịch vụ thật; xem [chuẩn bị merge backend](docs/BACKEND_MERGE_READINESS.md). Database memory/PostgreSQL và ảnh local/Supabase private giữ nguyên. APK cũ đã cài/kết nối theo xác nhận người dùng; chưa nghiệm thu camera/GPS/create/merge hoặc build APK mới chứa source vừa ghép. Chưa auth/Internet/FPT; backend và proxy ảnh dành cho môi trường phát triển tin cậy.
-- Upload giới hạn 8 MB, MIME và chữ ký JPEG/PNG/WebP phải khớp; đây chưa phải kiểm tra giải mã toàn ảnh. Mobile chuẩn hóa ảnh chọn/chụp sang JPEG.
-- Chưa kiểm chứng camera/GPS, quyền mạng, Dynamic Type, xoay màn hình hoặc luồng hai điện thoại trên iPhone thật.
-- `npm audit` tại lần triển khai này báo **8 moderate** trong chuỗi Expo/fingerprint và TypeScript ESLint dùng minimatch. `npm audit fix` không giải quyết được các cảnh báo; không chạy `--force` vì đề xuất downgrade Expo major. Cần theo dõi bản sửa tương thích SDK.
-
-## Tài liệu
-
-- [Phương án thống nhất đội](docs/CivicMerge_Team_Development_Agreement.md)
-- [Checklist nền mock](docs/CivicMerge_Mock_Foundation_Plan.md)
-- [Hướng dẫn iPhone](docs/IPHONE_SETUP.md)
-- [Đóng gói và cài APK Android](docs/ANDROID_APK.md)
-- [Kiến trúc](docs/ARCHITECTURE.md)
-- [Cấu hình backend và Storage](docs/BACKEND_STORAGE.md)
-- [Bàn giao và tích hợp Backend/Matching](docs/MATCHING_BACKEND_INTEGRATION.md)
-- [Kiểm chứng backend/Storage](docs/BACKEND_VERIFICATION.md)
-- [API contract](docs/API_CONTRACT.md)
-- [Kiểm thử và nghiệm thu](docs/INTEGRATION_TESTS.md)
-- [Task board](docs/TASK_BOARD.md)
-- [Đối chiếu MVP và backlog triển khai](docs/MVP_READINESS_AUDIT.md)
+- [Tổng quan sản phẩm](docs/CivicMerge_Project_Overview.md)
+- [Kiến trúc](docs/ARCHITECTURE.md) · [API contract](docs/API_CONTRACT.md)
+- [Thỏa thuận phát triển nhóm](docs/CivicMerge_Team_Development_Agreement.md)
+- [Bàn giao Matching](docs/CivicMerge_Matching_Handoff.md)
+- [Hướng dẫn database](supabase/README.md) · [Hướng dẫn Storage](docs/BACKEND_STORAGE.md)
