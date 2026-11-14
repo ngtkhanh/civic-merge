@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { Stack, router, usePathname } from 'expo-router';
-import { BackHandler, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { FlowProvider, useFlow } from '../state/flow';
-import { Button, colors } from '../ui';
+import { colors } from '../ui';
 
 function Navigation() {
   const { busy } = useFlow();
@@ -14,16 +14,97 @@ function Navigation() {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
     return () => subscription.remove();
   }, [busy]);
-  return <SafeAreaView style={s.root}><StatusBar style="dark" />
-    <View style={s.header}><Text style={s.brand}>CivicMerge</Text>
-      {pathname !== '/' && <Button title="Trang chủ" onPress={() => router.dismissTo('/')} secondary disabled={busy} />}
-    </View>
-    <Stack screenOptions={{ headerShown: false, gestureEnabled: !busy, contentStyle: { backgroundColor: colors.background } }} />
-  </SafeAreaView>;
+
+  return (
+    <SafeAreaView style={s.root}>
+      <StatusBar style="dark" />
+      <View style={s.header}>
+        <View style={s.leftGroup}>
+          {pathname !== '/' && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Về trang chủ"
+              disabled={busy}
+              onPress={() => router.dismissTo('/')}
+              style={({ pressed }) => [
+                s.backButton,
+                { opacity: busy ? 0.4 : pressed ? 0.7 : 1 },
+              ]}
+            >
+              <Text style={s.backText}>← Trang chủ</Text>
+            </Pressable>
+          )}
+          <View>
+            <Text style={s.brand}>CivicMerge</Text>
+            <Text style={s.tagline}>One Issue · One Record</Text>
+          </View>
+        </View>
+      </View>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: !busy,
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      />
+    </SafeAreaView>
+  );
 }
-export default function Layout() { return <SafeAreaProvider><FlowProvider><Navigation /></FlowProvider></SafeAreaProvider>; }
+
+export default function Layout() {
+  return (
+    <SafeAreaProvider>
+      <FlowProvider>
+        <Navigation />
+      </FlowProvider>
+    </SafeAreaProvider>
+  );
+}
+
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: 20, paddingVertical: 12, gap: 12, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: colors.border },
-  brand: { color: colors.ink, fontSize: 22, fontWeight: '800' },
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  backButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: colors.soft,
+    borderWidth: 1,
+    borderColor: colors.softBorder,
+  },
+  backText: {
+    color: colors.primaryDark,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  brand: {
+    color: colors.ink,
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  tagline: {
+    color: colors.subtle,
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
 });
