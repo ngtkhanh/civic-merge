@@ -11,3 +11,5 @@ export function createMockVision(getScenario: () => MockScenario): VisionAnalyze
     },
   };
 }
+
+export { createOpenAIVision, type OpenAIVisionOptions } from './openai.js';
