@@ -1,5 +1,11 @@
 # Kiểm thử và nghiệm thu nền mock
 
+## Bổ sung matcher GPS/features — 14/11/2026
+
+`npm.cmd run test --workspace=@civicmerge/matching` chạy unit tests thuật toán. `npm.cmd run test:integration` bao gồm suite mới `tests/integration/matching.test.ts`, inject matcher thật trực tiếp vào `createApp` với fixture Vision, memory/local và HTTP server riêng; không cần đổi default bootstrap mock.
+
+Đã kiểm tra pending/create/nearby candidate/concurrent merge/retry/conflict, một incident/hai reports/hai ảnh; ngoài bán kính/khác loại, thiếu GPS bỏ qua matcher, target sai giữ pending và matcher lỗi/output sai không lưu ảnh/report. Lọc resolved có unit test; guard merge resolved ở repository do Người 3 thực hiện, chưa nghiệm thu trên branch này. Xem [bàn giao matcher](CivicMerge_Matching_Handoff.md) để biết kết quả và phần còn mở.
+
 ## Kiểm tra tự động
 
 Chạy từ root: `npm run typecheck`, `npm run lint`, `npm run test:modules`, `npm run test:integration`, `npm run mobile:export`.

@@ -73,6 +73,8 @@ Xây dựng một ứng dụng di động chạy trên điện thoại thật, t
 
 **Hoàn thành khi:** Hai ảnh cùng ổ gà được đề xuất hợp nhất; người dùng xác nhận và hai báo cáo xuất hiện trong một hồ sơ; các báo cáo khác loại không bị tự hợp nhất.
 
+Kế hoạch triển khai theo code nền hiện tại: [Matching / Routing / Integration](CivicMerge_Matching_Implementation_Plan.md), gồm thuật toán, cấu hình khởi đầu, ownership, thứ tự tích hợp và tiêu chí kiểm chứng từng mốc.
+
 ---
 
 ## 3. Kiến trúc pipeline tổng thể
