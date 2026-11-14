@@ -51,7 +51,13 @@ export const ConfirmResponseSchema = z.object({
 });
 export const IncidentListResponseSchema = z.object({ incidents: z.array(IncidentSummarySchema) });
 export const ApiErrorSchema = z.object({ error: z.object({ code: z.string(), message: z.string() }) });
-export const HealthSchema = z.object({ status: z.literal('ok'), mode: z.enum(['mock', 'real']) });
+export const BackendCapabilitiesSchema = z.object({
+  persistence: z.enum(['memory', 'postgres']), storage: z.enum(['local', 'supabase']),
+  vision: z.enum(['mock', 'openai']), matching: z.enum(['mock', 'real']),
+});
+export const HealthSchema = z.object({
+  status: z.literal('ok'), mode: z.enum(['mock', 'real']), capabilities: BackendCapabilitiesSchema.optional(),
+});
 // Development controls are separate from the business request schemas.
 export const MockScenarioSchema = z.enum(['pothole', 'trash', 'flood', 'ai-error']);
 export const MockStateSchema = z.object({ scenario: MockScenarioSchema });
@@ -67,6 +73,7 @@ export type AnalyzeResponse = z.infer<typeof AnalyzeResponseSchema>;
 export type ConfirmRequest = z.infer<typeof ConfirmRequestSchema>;
 export type ConfirmResponse = z.infer<typeof ConfirmResponseSchema>;
 export type MockScenario = z.infer<typeof MockScenarioSchema>;
+export type BackendCapabilities = z.infer<typeof BackendCapabilitiesSchema>;
 
 export interface ImageInput { bytes: Uint8Array; mimeType: string }
 export interface VisionAnalyzer { analyzeIncidentImage(image: ImageInput): Promise<AIAnalysis> }

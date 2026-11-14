@@ -2,11 +2,13 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import type { ImageStorage } from '@civicmerge/contracts';
+import { validateImageInput } from './image.js';
 
 export function createLocalStorage(directory: string, publicBaseUrl: string): ImageStorage {
   const base = `${publicBaseUrl}/uploads/`;
   return {
     async save({ bytes, mimeType }) {
+      validateImageInput({ bytes, mimeType });
       await mkdir(directory, { recursive: true });
       const extension = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[mimeType];
       if (!extension) throw new Error('Unsupported image type');

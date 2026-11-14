@@ -116,7 +116,9 @@ for (const failure of ['throw', 'invalid output'] as const) {
     const createPending = ctx.repository.createPending.bind(ctx.repository);
     ctx.repository.createPending = async input => { pendingWrites++; return createPending(input); };
     const before = await readdir(ctx.uploadDir);
-    assert.equal((await ctx.analyze()).status, 500);
+    const response = await ctx.analyze();
+    assert.equal(response.status, failure === 'throw' ? 503 : 502);
+    assert.equal((await response.json()).error.code, failure === 'throw' ? 'MATCHING_UNAVAILABLE' : 'PROVIDER_INVALID_RESPONSE');
     assert.equal(pendingWrites, 0);
     assert.deepEqual(await readdir(ctx.uploadDir), before);
     assert.deepEqual(await ctx.list(), []);

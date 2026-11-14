@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, type ConfirmRequest, type ConfirmResponse, type IncidentDetail, type IncidentRepository, type Report } from '@civicmerge/contracts';
 
-export function createMemoryRepository(): IncidentRepository {
+export function createMemoryRepository(options: { incidents?: Map<string, IncidentDetail> } = {}): IncidentRepository {
   const reports = new Map<string, Report>();
-  const incidents = new Map<string, IncidentDetail>();
+  // Instance-owned backing store allows deterministic status-transition fixtures.
+  // No status mutation method or test endpoint is exposed through the HTTP API.
+  const incidents = options.incidents ?? new Map<string, IncidentDetail>();
   const confirmations = new Map<string, { request: ConfirmRequest; response: ConfirmResponse }>();
   const copy = <T>(value: T): T => structuredClone(value);
   return {
@@ -35,6 +37,7 @@ export function createMemoryRepository(): IncidentRepository {
         const target = incidents.get(request.targetIncidentId);
         if (!target) throw new DomainError('INCIDENT_NOT_FOUND', 'Hồ sơ đích không tồn tại.', 404);
         if (target.type !== report.analysis.type) throw new DomainError('INCIDENT_TYPE_MISMATCH', 'Không thể hợp nhất hai loại sự cố khác nhau.', 409);
+        if (target.status === 'resolved') throw new DomainError('INCIDENT_RESOLVED', 'Hồ sơ đích đã được xử lý. Hãy tạo hồ sơ mới.', 409);
         incident = target;
       } else {
         incident = {
